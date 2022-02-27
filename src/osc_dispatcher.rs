@@ -1,7 +1,3 @@
-//! The OSC dispatcher takes OSC messages or bundles and delivers them to all OSC methods with a matching address.
-//!
-//!
-
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use bevy::prelude::*;
@@ -9,13 +5,13 @@ use rosc::{OscBundle, OscError, OscMessage, OscPacket};
 use rosc::address::Matcher;
 use crate::OscMethod;
 
+/// Dispatches received [OscPacket](rosc::OscPacket)s to all [OscMethod]s with a matching address
 #[derive(Default)]
 #[derive(Component)]
 pub struct OscDispatcher {
     matchers: HashMap<String, Matcher>,
 }
 
-/// Dispatches received `OscPacket`s to `OscMethod`s with a matching address
 impl OscDispatcher {
     /// Dispatch an `OscPacket` to all matching `OscMethods`
     pub fn dispatch(&mut self, osc_packet: OscPacket, query: Query<&mut OscMethod>) {
