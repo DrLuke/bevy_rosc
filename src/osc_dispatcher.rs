@@ -1,7 +1,11 @@
+//! The OSC dispatcher takes OSC messages or bundles and delivers them to all OSC methods with a matching address.
+//!
+//!
+
 use std::collections::hash_map::Entry;
+use std::collections::HashMap;
 use bevy::prelude::*;
 use rosc::{OscBundle, OscError, OscMessage, OscPacket};
-use bevy::utils::HashMap;
 use rosc::address::Matcher;
 use crate::OscMethod;
 
