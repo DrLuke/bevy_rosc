@@ -24,16 +24,16 @@
 //! }
 //!
 //! fn spawn(mut commands: Commands) {
-//!     commands.spawn_bundle(TestBundle {
-//!             _t: TestEntity,
+//!     commands.spawn_bundle(ExampleBundle {
+//!             _t: ExampleEntity,
 //!             receiver: OscMethod::new("/some/address").expect(""),
 //!         });
 //! }
 //!
 //! fn osc_printer(mut query: Query<&mut OscMethod, (Changed<OscMethod>)>) {
 //!     for mut osc_method in query.iter_mut() {
-//!         match osc_receiver.get_message() {
-//!             Some(message) => println!("Method {} received: {:?}", osc_method.get_address(), msg),
+//!         match osc_method.get_message() {
+//!             Some(message) => println!("Method {} received: {:?}", osc_method.get_address(), message),
 //!             None => {}
 //!         }
 //!     }
@@ -43,7 +43,7 @@
 //!     App::new()
 //!         .add_plugins(MinimalPlugins)
 //!         .insert_resource(OscDispatcher::default())
-//!         .insert_system(osc_printer)
+//!         .add_system(osc_printer)
 //!         .run()
 //! }
 //! ```
