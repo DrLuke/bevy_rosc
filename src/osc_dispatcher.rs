@@ -13,34 +13,21 @@ pub struct OscDispatcher {
 }
 
 impl OscDispatcher {
-    /// Dispatch an `OscPacket` to all matching `OscMethods`
-    pub fn dispatch(&mut self, osc_packet: OscPacket, query: Query<&mut OscMethod>) {
-        match osc_packet {
-            OscPacket::Message(message) => {
-                self.dispatch_message(message, query);
-            }
-            OscPacket::Bundle(bundle) => {
-                self.dispatch_multiple_messages(OscDispatcher::unpack_bundle(bundle), query);
-            }
-        }
-    }
-
-    /// Dispatch an `OscMessage` to all matching `OscMethod`s
-    fn dispatch_message(&mut self, osc_message: OscMessage, mut query: Query<&mut OscMethod>) -> Result<(), OscError> {
-        // Add matcher for address pattern if it doesn't yet exist
-        if let Entry::Vacant(o) = self.matchers.entry(String::from(osc_message.addr.as_str())) {
-            o.insert(Matcher::new(osc_message.addr.as_str())?);
-        }
-
-        let matcher = self.matchers.get(osc_message.addr.as_str()).expect("");
-
-        for mut osc_receiver in query.iter_mut() {
-            if matcher.match_address(osc_receiver.get_address()).expect("Address already validated") {
-                osc_receiver.receive_message(osc_message.clone());
-            }
-        }
-
-        Ok(())
+    /// Dispatch `OscPacket`s to all matching `OscMethod`s
+    pub fn dispatch(&mut self, osc_packets: Vec<OscPacket>, query: Query<&mut OscMethod>) {
+        let osc_messages = osc_packets
+            .into_iter()
+            .map(
+                |osc_packet| {
+                    match osc_packet {
+                        OscPacket::Message(message) => vec![message],
+                        OscPacket::Bundle(bundle) => OscDispatcher::unpack_bundle(bundle)
+                    }
+                }
+            )
+            .flatten()
+            .collect();
+        self.dispatch_multiple_messages(osc_messages, query);
     }
 
     /// Dispatch multiple messages at once (i.e. from a bundle)

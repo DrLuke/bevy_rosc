@@ -54,7 +54,7 @@ fn send_message(mut disp: ResMut<OscDispatcher>, time: Res<Time>, mut query: Que
 
     println!("Dispatching: {:?}", new_msg);
 
-    disp.dispatch(OscPacket::Message(new_msg), query);
+    disp.dispatch(vec![OscPacket::Message(new_msg)], query);
 }
 
 fn main() {

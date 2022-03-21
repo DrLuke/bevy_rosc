@@ -26,11 +26,11 @@ struct TestBundle {
 }
 
 fn send_single(mut disp: ResMut<OscDispatcher>, query: Query<&mut OscMethod>) {
-    disp.dispatch(OscPacket::Message(OscMessage { addr: "/foo".to_string(), args: vec![1i32.into()] }), query);
+    disp.dispatch(vec![OscPacket::Message(OscMessage { addr: "/foo".to_string(), args: vec![1i32.into()] })], query);
 }
 
 fn send_wildcard(mut disp: ResMut<OscDispatcher>, query: Query<&mut OscMethod>) {
-    disp.dispatch(OscPacket::Message(OscMessage { addr: "/*/value".to_string(), args: vec![1i32.into()] }), query);
+    disp.dispatch(vec![OscPacket::Message(OscMessage { addr: "/*/value".to_string(), args: vec![1i32.into()] })], query);
 }
 
 fn send_bundle(mut disp: ResMut<OscDispatcher>, query: Query<&mut OscMethod>) {
@@ -48,7 +48,7 @@ fn send_bundle(mut disp: ResMut<OscDispatcher>, query: Query<&mut OscMethod>) {
         ],
     };
 
-    disp.dispatch(OscPacket::Bundle(new_msg), query);
+    disp.dispatch(vec![OscPacket::Bundle(new_msg)], query);
 }
 
 fn react_to_message(mut query: Query<(&TestEntity, &mut OscMethod, &mut TestComponent), Changed<OscMethod>>) {
