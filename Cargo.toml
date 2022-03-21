@@ -7,7 +7,8 @@ edition = "2021"
 
 [dependencies]
 bevy = { version = "0.6", default-features = false, features = [] }
-rosc = { git = "https://github.com/DrLuke/rosc", branch = "nom-matching" }
+rosc = "0.7"
+nom = "7.1.1"
 
 [dev-dependencies]
 bevy = { version = "0.6", default-features = true }
