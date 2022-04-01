@@ -41,3 +41,9 @@ impl OscMethod {
         })
     }
 }
+
+/// Bevy component containing multiple OSC methods
+#[derive(Component)]
+pub struct OscMultiMethod {
+    methods: Vec<OscMethod>,
+}
