@@ -58,3 +58,4 @@ mod osc_udp_client;
 pub use osc_method::OscMethod;
 pub use osc_dispatcher::OscDispatcher;
 pub use osc_udp_server::OscUdpServer;
+pub use osc_udp_client::OscUdpClient;
