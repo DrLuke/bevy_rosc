@@ -53,6 +53,7 @@ extern crate rosc;
 mod osc_method;
 mod osc_dispatcher;
 mod osc_udp_server;
+mod osc_udp_client;
 
 pub use osc_method::OscMethod;
 pub use osc_dispatcher::OscDispatcher;
