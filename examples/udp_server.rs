@@ -2,14 +2,11 @@
 
 extern crate bevy_osc;
 
-use bevy::core::FixedTimestep;
 use bevy::prelude::*;
 
-use bevy_osc::OscMethod;
+use bevy_osc::{OscMethod, OscMultiMethod};
 use bevy_osc::OscDispatcher;
 use bevy_osc::OscUdpServer;
-use rosc::OscMessage;
-use rosc::OscPacket;
 
 #[derive(Component)]
 struct ExampleEntity;
@@ -36,7 +33,7 @@ fn startup(mut commands: Commands) {
 }
 
 /// System that listens for any `OscMethod` that has changed and then prints out the received OscMessage
-fn print_received_osc_packets(mut query: Query<&mut OscMethod, (Changed<OscMethod>)>) {
+fn print_received_osc_packets(mut query: Query<&mut OscMethod, Changed<OscMethod>>) {
     for mut osc_receiver in query.iter_mut() {
         let new_msg = osc_receiver.get_message();
         match new_msg {
@@ -49,7 +46,7 @@ fn print_received_osc_packets(mut query: Query<&mut OscMethod, (Changed<OscMetho
 }
 
 /// Read `OscPacket`s from udp server until no more messages are received and then dispatches them
-fn receive_packets(mut disp: ResMut<OscDispatcher>, time: Res<Time>, mut query: Query<(&mut OscUdpServer)>, mut method_query: Query<&mut OscMethod>) {
+fn receive_packets(mut disp: ResMut<OscDispatcher>, mut query: Query<&mut OscUdpServer>, method_query: Query<&mut OscMethod>, multi_method_query: Query<&mut OscMultiMethod>) {
     let mut osc_udp_server = query.single_mut();
     let mut osc_packets = vec![];
 
@@ -63,7 +60,7 @@ fn receive_packets(mut disp: ResMut<OscDispatcher>, time: Res<Time>, mut query: 
         }
     }
 
-    disp.dispatch(osc_packets, method_query);
+    disp.dispatch(osc_packets, method_query, multi_method_query);
 }
 
 fn main() {

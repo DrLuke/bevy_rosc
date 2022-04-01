@@ -8,7 +8,7 @@ extern crate bevy_osc;
 use bevy::core::FixedTimestep;
 use bevy::prelude::*;
 
-use bevy_osc::OscMethod;
+use bevy_osc::{OscMethod, OscMultiMethod};
 use bevy_osc::OscDispatcher;
 use rosc::OscMessage;
 use rosc::OscPacket;
@@ -36,7 +36,7 @@ fn startup(mut commands: Commands) {
 }
 
 /// System that listens for any `OscMethod` that has changed and then prints out the received OscMessage
-fn print_received_osc_packets(mut query: Query<&mut OscMethod, (Changed<OscMethod>)>) {
+fn print_received_osc_packets(mut query: Query<&mut OscMethod, Changed<OscMethod>>) {
     for mut osc_receiver in query.iter_mut() {
         let new_msg = osc_receiver.get_message();
         match new_msg {
@@ -49,12 +49,12 @@ fn print_received_osc_packets(mut query: Query<&mut OscMethod, (Changed<OscMetho
 }
 
 /// Creates an `OscMessage` and then dispatches it
-fn send_message(mut disp: ResMut<OscDispatcher>, time: Res<Time>, mut query: Query<(&mut OscMethod)>) {
-    let mut new_msg = OscMessage { addr: "/entity*/time".to_string(), args: vec![time.time_since_startup().as_secs_f32().into()] };
+fn send_message(mut disp: ResMut<OscDispatcher>, time: Res<Time>, method_query: Query<&mut OscMethod>, multi_method_query: Query<&mut OscMultiMethod>) {
+    let new_msg = OscMessage { addr: "/entity*/time".to_string(), args: vec![time.time_since_startup().as_secs_f32().into()] };
 
     println!("Dispatching: {:?}", new_msg);
 
-    disp.dispatch(vec![OscPacket::Message(new_msg)], query);
+    disp.dispatch(vec![OscPacket::Message(new_msg)], method_query, multi_method_query);
 }
 
 fn main() {

@@ -1,12 +1,9 @@
 use std::io;
-use std::io::ErrorKind;
 use bevy::prelude::*;
-use std::net::{SocketAddr, ToSocketAddrs, UdpSocket};
+use std::net::{SocketAddr, UdpSocket};
 
 use rosc::encoder::encode;
-use rosc::{OscError, OscPacket};
-
-use nom::Err;
+use rosc::OscPacket;
 
 #[derive(Component)]
 pub struct OscUdpClient {
