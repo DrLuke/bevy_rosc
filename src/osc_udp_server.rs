@@ -29,7 +29,7 @@ impl OscUdpServer{
         })
     }
 
-    pub fn recv(&mut self) -> Result<Option<OscPacket>, OscUdpReceiveError> {
+    pub fn recv(&self) -> Result<Option<OscPacket>, OscUdpReceiveError> {
         let mut buf = [0; MTU];
 
         let result = self.socket.recv(&mut buf);

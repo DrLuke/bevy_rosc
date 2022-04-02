@@ -47,7 +47,7 @@ fn print_received_osc_packets(mut query: Query<&mut OscMethod, Changed<OscMethod
 
 /// Read `OscPacket`s from udp server until no more messages are received and then dispatches them
 fn receive_packets(mut disp: ResMut<OscDispatcher>, mut query: Query<&mut OscUdpServer>, method_query: Query<&mut OscMethod>, multi_method_query: Query<&mut OscMultiMethod>) {
-    let mut osc_udp_server = query.single_mut();
+    let osc_udp_server = query.single_mut();
     let mut osc_packets = vec![];
 
     loop {
