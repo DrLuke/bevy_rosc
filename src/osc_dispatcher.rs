@@ -60,7 +60,9 @@ impl OscDispatcher {
                 // This is done so that the change detection only triggers if there's an actual change
                 if osc_multi_method.deref().methods.iter().any(|x| matcher.match_address(x.get_address()).expect("Address already validated") ) {
                     for osc_method in osc_multi_method.deref_mut().methods.iter_mut() {
-                        osc_method.receive_message(osc_messages[index].clone())
+                        if matcher.match_address(osc_method.get_address()).expect("Address already validated") {
+                            osc_method.receive_message(osc_messages[index].clone())
+                        }
                     }
                 }
             }
