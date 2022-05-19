@@ -48,7 +48,7 @@ impl OscDispatcher {
 
         for mut osc_receiver in method_query.iter_mut() {
             for (index, matcher) in matchers.iter().enumerate() {
-                osc_receiver.deref_mut().match_addresses(matcher, osc_messages[index].clone());
+                osc_receiver.deref_mut().match_addresses(matcher, &osc_messages[index]);
             }
         }
 

@@ -43,10 +43,11 @@ impl OscMethod {
         })
     }
 
-    pub fn match_addresses(&mut self, matcher: &Matcher, message: OscMessage) {
+    /// Checks if OscMethod's addresses are matched by matcher and receives the message if it does
+    pub fn match_addresses(&mut self, matcher: &Matcher, message: &OscMessage) {
         for addr in &self.addresses {
             if matcher.match_address(addr.as_str()).expect("Address already validated") {
-                self.receive_message(message);
+                self.receive_message(message.clone());
                 return;
             }
         }
