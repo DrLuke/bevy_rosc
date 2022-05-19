@@ -4,7 +4,7 @@ extern crate bevy_osc;
 
 use bevy::prelude::*;
 
-use bevy_osc::{OscMethod, OscMultiMethod};
+use bevy_osc::OscMethod;
 use bevy_osc::OscDispatcher;
 use bevy_osc::OscUdpServer;
 
@@ -25,7 +25,7 @@ fn startup(mut commands: Commands) {
     // Spawn a bundle with an OSC method that can have OSC packets dispatched to it
     commands.spawn_bundle(ExampleBundle {
         _t: ExampleEntity,
-        receiver: OscMethod::new("/some/entity").expect(""),
+        receiver: OscMethod::new(vec!["/beat/mute"]).expect(""),
     });
 
     // Spawn UDP server that can receive OSC packets on port 31337
@@ -38,7 +38,7 @@ fn print_received_osc_packets(mut query: Query<&mut OscMethod, Changed<OscMethod
         let new_msg = osc_receiver.get_message();
         match new_msg {
             Some(msg) => {
-                println!("Method {} received: {:?}", osc_receiver.get_address(), msg)
+                println!("Method {} received: {:?}", osc_receiver.get_addresses()[0], msg)
             }
             None => {}
         }
@@ -46,7 +46,7 @@ fn print_received_osc_packets(mut query: Query<&mut OscMethod, Changed<OscMethod
 }
 
 /// Read `OscPacket`s from udp server until no more messages are received and then dispatches them
-fn receive_packets(mut disp: ResMut<OscDispatcher>, mut query: Query<&mut OscUdpServer>, method_query: Query<&mut OscMethod>, multi_method_query: Query<&mut OscMultiMethod>) {
+fn receive_packets(mut disp: ResMut<OscDispatcher>, mut query: Query<&mut OscUdpServer>, method_query: Query<&mut OscMethod>) {
     let osc_udp_server = query.single_mut();
     let mut osc_packets = vec![];
 
@@ -60,7 +60,7 @@ fn receive_packets(mut disp: ResMut<OscDispatcher>, mut query: Query<&mut OscUdp
         }
     }
 
-    disp.dispatch(osc_packets, method_query, multi_method_query);
+    disp.dispatch(osc_packets, method_query);
 }
 
 fn main() {

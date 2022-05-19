@@ -1,21 +1,21 @@
 use bevy::prelude::*;
 use rosc::{OscError, OscMessage};
-use rosc::address::verify_address;
+use rosc::address::{Matcher, verify_address};
 use std::collections::VecDeque;
 
-/// Bevy component that can receive OSC messages
+/// Bevy component that can receive OSC messages at one or multiple addresses
 #[derive(Component)]
 pub struct OscMethod {
-    /// A valid OSC address
-    address: String,
-    /// Received OSC messages that match the address
+    /// Valid OSC addresses
+    addresses: Vec<String>,
+    /// Received OSC messages that matched one of the addresses
     messages: VecDeque<OscMessage>,
 }
 
 impl OscMethod {
     /// Gets the oldest message from the message queue
     pub fn get_message(&mut self) -> Option<OscMessage> { self.messages.pop_front() }
-    pub fn get_address(&self) -> &str { self.address.as_str() }
+    pub fn get_addresses(&self) -> Vec<String> { self.addresses.clone() }
 
     /// Receives an OSC message and stores it at the end of the message queue.
     /// This method is called by the OSC dispatcher after successfully matching an incoming OSC message's address pattern to the OSC method's address.
@@ -32,18 +32,23 @@ impl OscMethod {
     /// # Errors
     ///
     /// This function will return a [BadAddress](rosc::OscError::BadAddress) error when the address is invalid.
-    pub fn new(address: &str) -> Result<Self, OscError> {
-        verify_address(address)?;
+    pub fn new(addresses: Vec<&str>) -> Result<Self, OscError> {
+        for addr in &addresses {
+            verify_address(addr)?;
+        }
 
         Ok(Self {
-            address: String::from(address),
+            addresses: addresses.iter().map(|&a| String::from(a)).collect(),
             messages: Default::default(),
         })
     }
-}
 
-/// Bevy component containing multiple OSC methods
-#[derive(Component)]
-pub struct OscMultiMethod {
-    pub methods: Vec<OscMethod>,
+    pub fn match_addresses(&mut self, matcher: &Matcher, message: OscMessage) {
+        for addr in &self.addresses {
+            if matcher.match_address(addr.as_str()).expect("Address already validated") {
+                self.receive_message(message);
+                return;
+            }
+        }
+    }
 }
