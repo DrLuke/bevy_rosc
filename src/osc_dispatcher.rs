@@ -1,6 +1,6 @@
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
-use std::ops::{Deref, DerefMut};
+use std::ops::DerefMut;
 use bevy::prelude::*;
 use rosc::{OscBundle, OscError, OscMessage, OscPacket};
 use rosc::address::Matcher;
@@ -15,7 +15,7 @@ pub struct OscDispatcher {
 
 impl OscDispatcher {
     /// Dispatch `OscPacket`s to all matching `OscMethod`s
-    pub fn dispatch(&mut self, osc_packets: Vec<OscPacket>, mut method_query: Query<&mut OscMethod>) {
+    pub fn dispatch(&mut self, osc_packets: Vec<OscPacket>, method_query: Query<&mut OscMethod>) {
         let osc_messages = osc_packets
             .into_iter()
             .map(

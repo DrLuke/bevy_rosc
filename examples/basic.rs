@@ -39,11 +39,8 @@ fn startup(mut commands: Commands) {
 fn print_received_osc_packets(mut query: Query<&mut OscMethod, Changed<OscMethod>>) {
     for mut osc_receiver in query.iter_mut() {
         let new_msg = osc_receiver.get_message();
-        match new_msg {
-            Some(msg) => {
-                println!("Method {} received: {:?}", osc_receiver.get_addresses()[0], msg)
-            }
-            None => {}
+        if let Some(msg) = new_msg {
+            println!("Method {} received: {:?}", osc_receiver.get_addresses()[0], msg)
         }
     }
 }

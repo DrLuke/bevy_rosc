@@ -36,27 +36,23 @@ fn startup(mut commands: Commands) {
 fn print_received_osc_packets(mut query: Query<&mut OscMethod, Changed<OscMethod>>) {
     for mut osc_receiver in query.iter_mut() {
         let new_msg = osc_receiver.get_message();
-        match new_msg {
-            Some(msg) => {
-                println!("Method {} received: {:?}", osc_receiver.get_addresses()[0], msg)
-            }
-            None => {}
+        if let Some(msg) = new_msg {
+            println!("Method {} received: {:?}", osc_receiver.get_addresses()[0], msg)
         }
     }
 }
 
-/// Read `OscPacket`s from udp server until no more messages are received and then dispatches them
+/// Read `OscPacket`s from udp server until no more messages are received and then dispatch them
 fn receive_packets(mut disp: ResMut<OscDispatcher>, mut query: Query<&mut OscUdpServer>, method_query: Query<&mut OscMethod>) {
     let osc_udp_server = query.single_mut();
     let mut osc_packets = vec![];
 
     loop {
-        match osc_udp_server.recv() {
-            Ok(o) => match o {
+        if let Ok(o) = osc_udp_server.recv() {
+            match o {
                 Some(p) => osc_packets.push(p),
                 None => break
-            },
-            Err(_) => ()
+            }
         }
     }
 
