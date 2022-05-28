@@ -2,7 +2,7 @@ extern crate bevy_osc;
 
 use bevy::prelude::*;
 
-use bevy_osc::{OscMethod, OscMultiMethod};
+use bevy_osc::OscMethod;
 use bevy_osc::OscDispatcher;
 use rosc::{OscBundle, OscMessage, OscTime};
 use rosc::OscPacket;
@@ -25,15 +25,15 @@ struct TestBundle {
     test_component: TestComponent,
 }
 
-fn send_single(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut OscMethod>, multi_method_query: Query<&mut OscMultiMethod>) {
-    disp.dispatch(vec![OscPacket::Message(OscMessage { addr: "/foo".to_string(), args: vec![1i32.into()] })], method_query, multi_method_query);
+fn send_single(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut OscMethod>) {
+    disp.dispatch(vec![OscPacket::Message(OscMessage { addr: "/foo".to_string(), args: vec![1i32.into()] })], method_query);
 }
 
-fn send_wildcard(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut OscMethod>, multi_method_query: Query<&mut OscMultiMethod>) {
-    disp.dispatch(vec![OscPacket::Message(OscMessage { addr: "/*/value".to_string(), args: vec![1i32.into()] })], method_query, multi_method_query);
+fn send_wildcard(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut OscMethod>) {
+    disp.dispatch(vec![OscPacket::Message(OscMessage { addr: "/*/value".to_string(), args: vec![1i32.into()] })], method_query);
 }
 
-fn send_bundle(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut OscMethod>, multi_method_query: Query<&mut OscMultiMethod>) {
+fn send_bundle(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut OscMethod>) {
     let new_msg = OscBundle {
         timetag: OscTime { seconds: 0, fractional: 0 },
         content: vec![
@@ -48,23 +48,20 @@ fn send_bundle(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut OscMeth
         ],
     };
 
-    disp.dispatch(vec![OscPacket::Bundle(new_msg)], method_query, multi_method_query);
+    disp.dispatch(vec![OscPacket::Bundle(new_msg)], method_query);
 }
 
 fn react_to_message(mut query: Query<(&TestEntity, &mut OscMethod, &mut TestComponent), Changed<OscMethod>>) {
     for (_, mut osc_receiver, mut test_component) in query.iter_mut() {
         let new_msg = osc_receiver.get_message();
-        match new_msg {
-            Some(msg) => {
-                println!("{:?}", msg);
-                if msg.args.len() == 1 {
-                    match msg.args[0] {
-                        OscType::Int(i) => test_component.value = i,
-                        _ => {}
-                    }
+        if let Some(msg) = new_msg {
+            println!("{:?}", msg);
+            if msg.args.len() == 1 {
+                match msg.args[0] {
+                    OscType::Int(i) => test_component.value = i,
+                    _ => {}
                 }
             }
-            None => {}
         }
     }
 }
@@ -83,7 +80,7 @@ fn dispatch_osc_message() {
     let test_entity_id = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new("/foo").expect(""),
+        receiver: OscMethod::new(vec!["/foo"]).expect(""),
     }).id();
 
     update_stage.run(&mut world);
@@ -105,17 +102,17 @@ fn dispatch_osc_message_to_multiple_targets() {
     let test_entity_id1 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new("/entity1/value").expect(""),
+        receiver: OscMethod::new(vec!["/entity1/value"]).expect(""),
     }).id();
     let test_entity_id2 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new("/entity2/value").expect(""),
+        receiver: OscMethod::new(vec!["/entity2/value"]).expect(""),
     }).id();
     let test_entity_id3 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new("/entity3/value").expect(""),
+        receiver: OscMethod::new(vec!["/entity3/value"]).expect(""),
     }).id();
 
     update_stage.run(&mut world);
@@ -139,17 +136,17 @@ fn dispatch_osc_bundle() {
     let test_entity_id1 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new("/entity1/value").expect(""),
+        receiver: OscMethod::new(vec!["/entity1/value"]).expect(""),
     }).id();
     let test_entity_id2 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new("/entity2/value").expect(""),
+        receiver: OscMethod::new(vec!["/entity2/value"]).expect(""),
     }).id();
     let test_entity_id3 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new("/entity3/value").expect(""),
+        receiver: OscMethod::new(vec!["/entity3/value"]).expect(""),
     }).id();
 
     update_stage.run(&mut world);

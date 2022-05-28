@@ -8,7 +8,7 @@
 //! Then add an [OscMethod](bevy_osc::OscMethod) component to your entity.
 //! The dispatcher will now deliver all OSC messages that match the method's address to your component.
 //!
-//! ```
+//! ```no_run
 //! use bevy::prelude::*;
 //! use bevy_osc::OscDispatcher;
 //! use bevy_osc::OscMethod;
@@ -26,14 +26,14 @@
 //! fn spawn(mut commands: Commands) {
 //!     commands.spawn_bundle(ExampleBundle {
 //!             _t: ExampleEntity,
-//!             receiver: OscMethod::new("/some/address").expect(""),
+//!             receiver: OscMethod::new(vec!["/some/address"]).expect(""),
 //!         });
 //! }
 //!
 //! fn osc_printer(mut query: Query<&mut OscMethod, (Changed<OscMethod>)>) {
 //!     for mut osc_method in query.iter_mut() {
 //!         match osc_method.get_message() {
-//!             Some(message) => println!("Method {} received: {:?}", osc_method.get_address(), message),
+//!             Some(message) => println!("Method {} received: {:?}", osc_method.get_addresses()[0], message),
 //!             None => {}
 //!         }
 //!     }
