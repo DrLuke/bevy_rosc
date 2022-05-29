@@ -1,6 +1,6 @@
 //! A minimal example for how to work with the dispatcher.
 //!
-//! The dispatcher is responsible for
+//! The dispatcher is responsible for distributing messages to the correct OscMethod component.
 //!
 
 extern crate bevy_osc;
@@ -37,10 +37,10 @@ fn startup(mut commands: Commands) {
 
 /// System that listens for any `OscMethod` that has changed and then prints out the received OscMessage
 fn print_received_osc_packets(mut query: Query<&mut OscMethod, Changed<OscMethod>>) {
-    for mut osc_receiver in query.iter_mut() {
-        let new_msg = osc_receiver.get_message();
+    for mut osc_method in query.iter_mut() {
+        let new_msg = osc_method.get_message();
         if let Some(msg) = new_msg {
-            println!("Method {} received: {:?}", osc_receiver.get_addresses()[0], msg)
+            println!("Method {} received: {:?}", osc_method.get_addresses()[0], msg)
         }
     }
 }
