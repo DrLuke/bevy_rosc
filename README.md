@@ -1,6 +1,10 @@
 # bevy_osc
 
-Adds the ability to send and receive [OSC 1.0](https://github.com/CNMAT/OpenSoundControl.org/blob/master/spec-1_0.md) messages in bevy with [rosc](https://github.com/klingtnet/rosc).
+[![Bevy tracking](https://img.shields.io/badge/Bevy%20tracking-released%20version-lightblue)](https://github.com/bevyengine/bevy/blob/main/docs/plugins_guidelines.md#main-branch-tracking)
+[![crates.io](https://img.shields.io/crates/v/bevy_rosc)](https://crates.io/crates/bevy_rosc)
+[![docs.rs](https://docs.rs/bevy_rosc/badge.svg)](https://docs.rs/bevy_rosc)
+
+Send and receive [OSC 1.0](https://github.com/CNMAT/OpenSoundControl.org/blob/master/spec-1_0.md) messages in bevy with [rosc](https://github.com/klingtnet/rosc).
 
 ## Usage
 
