@@ -4,14 +4,14 @@
 //!
 //! # Usage
 //!
-//! First you need to add the [dispatcher](bevy_osc::OscDispatcher) as a resource to your app.
-//! Then add an [OscMethod](bevy_osc::OscMethod) component to your entity.
+//! First you need to add the [dispatcher](bevy_rosc::OscDispatcher) as a resource to your app.
+//! Then add an [OscMethod](bevy_rosc::OscMethod) component to your entity.
 //! The dispatcher will now deliver all OSC messages that match the method's address to your component.
 //!
 //! ```no_run
 //! use bevy::prelude::*;
-//! use bevy_osc::OscDispatcher;
-//! use bevy_osc::OscMethod;
+//! use bevy_rosc::OscDispatcher;
+//! use bevy_rosc::OscMethod;
 //!
 //! #[derive(Component)]
 //! struct ExampleEntity;

@@ -1,12 +1,12 @@
 //! UDP server example
 
-extern crate bevy_osc;
+extern crate bevy_rosc;
 
 use bevy::prelude::*;
 
-use bevy_osc::OscMethod;
-use bevy_osc::OscDispatcher;
-use bevy_osc::OscUdpServer;
+use bevy_rosc::OscMethod;
+use bevy_rosc::OscDispatcher;
+use bevy_rosc::OscUdpServer;
 
 #[derive(Component)]
 struct ExampleEntity;

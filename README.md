@@ -1,4 +1,4 @@
-# bevy_osc
+# bevy_rosc
 
 [![Bevy tracking](https://img.shields.io/badge/Bevy%20tracking-released%20version-lightblue)](https://github.com/bevyengine/bevy/blob/main/docs/plugins_guidelines.md#main-branch-tracking)
 [![crates.io](https://img.shields.io/crates/v/bevy_rosc)](https://crates.io/crates/bevy_rosc)

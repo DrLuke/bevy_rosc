@@ -1,5 +1,5 @@
 [package]
-name = "bevy_osc"
+name = "bevy_rosc"
 version = "0.1.0"
 edition = "2021"
 description = "Send and receive OSC messages in bevy"

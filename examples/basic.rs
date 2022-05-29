@@ -3,13 +3,13 @@
 //! The dispatcher is responsible for distributing messages to the correct OscMethod component.
 //!
 
-extern crate bevy_osc;
+extern crate bevy_rosc;
 
 use bevy::core::FixedTimestep;
 use bevy::prelude::*;
 
-use bevy_osc::OscMethod;
-use bevy_osc::OscDispatcher;
+use bevy_rosc::OscMethod;
+use bevy_rosc::OscDispatcher;
 use rosc::OscMessage;
 use rosc::OscPacket;
 
