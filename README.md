@@ -55,3 +55,10 @@ fn print_received_osc_packets(mut query: Query<(&ExampleEntity, &mut OscMethod),
 ```
 
 See [examples/basic.rs](examples/basic.rs) for a full example.
+
+## Bevy Compatibility
+
+| bevy | bevy_rosc |
+|------|-----------|
+| 0.8  | 0.2       |
+| 0.7  | 0.1       |
