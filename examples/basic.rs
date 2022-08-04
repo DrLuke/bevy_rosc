@@ -5,8 +5,8 @@
 
 extern crate bevy_rosc;
 
-use bevy::core::FixedTimestep;
 use bevy::prelude::*;
+use bevy::time::FixedTimestep;
 
 use bevy_rosc::OscMethod;
 use bevy_rosc::OscDispatcher;
