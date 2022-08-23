@@ -18,7 +18,7 @@ impl OscDispatcher {
     pub fn dispatch(&mut self, osc_packets: Vec<OscPacket>, method_query: Query<&mut OscMethod>) {
         let osc_messages = osc_packets
             .into_iter()
-            .map(
+            .flat_map(
                 |osc_packet| {
                     match osc_packet {
                         OscPacket::Message(message) => vec![message],
@@ -26,7 +26,6 @@ impl OscDispatcher {
                     }
                 }
             )
-            .flatten()
             .collect();
         self.dispatch_messages(osc_messages, method_query);
     }
