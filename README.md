@@ -60,5 +60,5 @@ See [examples/basic.rs](examples/basic.rs) for a full example.
 
 | bevy | bevy_rosc |
 |------|-----------|
-| 0.8  | 0.2       |
+| 0.8  | 0.3       |
 | 0.7  | 0.1       |
