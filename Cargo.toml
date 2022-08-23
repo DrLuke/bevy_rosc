@@ -10,7 +10,7 @@ categories = ["network-programming"]
 
 [dependencies]
 bevy = { version = "0.8", default-features = false, features = [] }
-rosc = "0.7"
+rosc = "0.9"
 nom = "7.1"
 
 [dev-dependencies]
