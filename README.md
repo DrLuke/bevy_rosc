@@ -26,7 +26,7 @@ struct ExampleBundle {
 fn spawn_entity(mut commands: Commands) {
     commands.spawn_bundle(ExampleBundle {
         _t: ExampleEntity,
-        osc_method: OscMethod::new(vec!["/some/osc/address"]).expect("Method address is valid"),
+        osc_method: OscMethod::new(vec!["/some/osc/address".into()]).expect("Method address is valid"),
     });
 }
 ```

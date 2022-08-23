@@ -80,7 +80,7 @@ fn dispatch_osc_message() {
     let test_entity_id = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new(vec!["/foo"]).expect(""),
+        receiver: OscMethod::new(vec!["/foo".into()]).expect(""),
     }).id();
 
     update_stage.run(&mut world);
@@ -102,17 +102,17 @@ fn dispatch_osc_message_to_multiple_targets() {
     let test_entity_id1 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new(vec!["/entity1/value"]).expect(""),
+        receiver: OscMethod::new(vec!["/entity1/value".into()]).expect(""),
     }).id();
     let test_entity_id2 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new(vec!["/entity2/value"]).expect(""),
+        receiver: OscMethod::new(vec!["/entity2/value".into()]).expect(""),
     }).id();
     let test_entity_id3 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new(vec!["/entity3/value"]).expect(""),
+        receiver: OscMethod::new(vec!["/entity3/value".into()]).expect(""),
     }).id();
 
     update_stage.run(&mut world);
@@ -136,17 +136,17 @@ fn dispatch_osc_bundle() {
     let test_entity_id1 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new(vec!["/entity1/value"]).expect(""),
+        receiver: OscMethod::new(vec!["/entity1/value".into()]).expect(""),
     }).id();
     let test_entity_id2 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new(vec!["/entity2/value"]).expect(""),
+        receiver: OscMethod::new(vec!["/entity2/value".into()]).expect(""),
     }).id();
     let test_entity_id3 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new(vec!["/entity3/value"]).expect(""),
+        receiver: OscMethod::new(vec!["/entity3/value".into()]).expect(""),
     }).id();
 
     update_stage.run(&mut world);

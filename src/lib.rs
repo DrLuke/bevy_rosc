@@ -26,14 +26,14 @@
 //! fn spawn(mut commands: Commands) {
 //!     commands.spawn_bundle(ExampleBundle {
 //!             _t: ExampleEntity,
-//!             receiver: OscMethod::new(vec!["/some/address"]).expect(""),
+//!             receiver: OscMethod::new(vec!["/some/address".into()]).expect(""),
 //!         });
 //! }
 //!
 //! fn osc_printer(mut query: Query<&mut OscMethod, (Changed<OscMethod>)>) {
 //!     for mut osc_method in query.iter_mut() {
 //!         match osc_method.get_message() {
-//!             Some(message) => println!("Method {} received: {:?}", osc_method.get_addresses()[0], message),
+//!             Some(message) => println!("Method {:?} received: {:?}", osc_method.get_addresses()[0], message),
 //!             None => {}
 //!         }
 //!     }

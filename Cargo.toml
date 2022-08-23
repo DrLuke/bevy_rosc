@@ -10,8 +10,8 @@ categories = ["network-programming"]
 
 [dependencies]
 bevy = { version = "0.8", default-features = false, features = [] }
-rosc = "0.9"
-nom = "7.1"
+# This should be rosc = 0.9 but there currently are a few unmerged fixes
+rosc = { git = "https://github.com/DrLuke/rosc", branch = "minor_fixes"}
 
 [dev-dependencies]
 bevy = { version = "0.8", default-features = true }

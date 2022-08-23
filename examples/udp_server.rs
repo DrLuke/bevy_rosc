@@ -25,7 +25,7 @@ fn startup(mut commands: Commands) {
     // Spawn a bundle with an OSC method that can have OSC packets dispatched to it
     commands.spawn_bundle(ExampleBundle {
         _t: ExampleEntity,
-        receiver: OscMethod::new(vec!["/beat/mute"]).expect(""),
+        receiver: OscMethod::new(vec!["/beat/mute".into()]).expect(""),
     });
 
     // Spawn UDP server that can receive OSC packets on port 31337
@@ -37,7 +37,7 @@ fn print_received_osc_packets(mut query: Query<&mut OscMethod, Changed<OscMethod
     for mut osc_receiver in query.iter_mut() {
         let new_msg = osc_receiver.get_message();
         if let Some(msg) = new_msg {
-            println!("Method {} received: {:?}", osc_receiver.get_addresses()[0], msg)
+            println!("Method {:?} received: {:?}", osc_receiver.get_addresses()[0], msg)
         }
     }
 }

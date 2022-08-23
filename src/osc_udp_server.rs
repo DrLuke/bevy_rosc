@@ -6,8 +6,6 @@ use std::net::{ToSocketAddrs, UdpSocket};
 use rosc::decoder::{decode_udp, MTU};
 use rosc::{OscError, OscPacket};
 
-use nom::Err;
-
 #[derive(Component)]
 pub struct OscUdpServer {
     socket: UdpSocket
@@ -37,11 +35,7 @@ impl OscUdpServer{
             Ok(num_bytes) => {
                 match decode_udp(&buf[0..num_bytes]) {
                     Ok((_, osc_packet)) => Ok(Some(osc_packet)),
-                    Err(e) => match e {
-                        Err::Incomplete(_) => Err(OscUdpReceiveError::OscError(rosc::OscError::BadPacket("Incomplete data"))),
-                        Err::Error(e) => Err(OscUdpReceiveError::OscError(e)),
-                        Err::Failure(e) => Err(OscUdpReceiveError::OscError(e))
-                    }
+                    Err(e) => Err(OscUdpReceiveError::OscError(e))
                 }
             },
 

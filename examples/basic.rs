@@ -30,7 +30,7 @@ fn startup(mut commands: Commands) {
     for i in 0..3 {
         commands.spawn_bundle(ExampleBundle {
             _t: ExampleEntity,
-            receiver: OscMethod::new(vec![format!("/entity{}/time", i).as_str()]).expect(""),
+            receiver: OscMethod::new(vec![format!("/entity{}/time", i)]).expect(""),
         });
     }
 }
@@ -40,7 +40,7 @@ fn print_received_osc_packets(mut query: Query<&mut OscMethod, Changed<OscMethod
     for mut osc_method in query.iter_mut() {
         let new_msg = osc_method.get_message();
         if let Some(msg) = new_msg {
-            println!("Method {} received: {:?}", osc_method.get_addresses()[0], msg)
+            println!("Method {:?} received: {:?}", osc_method.get_addresses()[0], msg)
         }
     }
 }
