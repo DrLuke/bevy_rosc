@@ -5,14 +5,14 @@ use std::collections::VecDeque;
 
 /// Bevy component that can receive OSC messages at one or multiple addresses
 #[derive(Component)]
-pub struct OscMethod {
+pub struct MultiAddressOscMethod {
     /// Valid OSC addresses
     addresses: Vec<OscAddress>,
     /// Received OSC messages that matched one of the addresses
     messages: VecDeque<OscMessage>,
 }
 
-impl OscMethod {
+impl MultiAddressOscMethod {
     /// Gets the oldest message from the message queue
     pub fn get_message(&mut self) -> Option<OscMessage> { self.messages.pop_front() }
     pub fn get_addresses(&self) -> Vec<OscAddress> { self.addresses.clone() }

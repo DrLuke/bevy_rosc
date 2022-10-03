@@ -2,7 +2,7 @@ extern crate bevy_rosc;
 
 use bevy::prelude::*;
 
-use bevy_rosc::OscMethod;
+use bevy_rosc::MultiAddressOscMethod;
 use bevy_rosc::OscDispatcher;
 use rosc::{OscBundle, OscMessage, OscTime};
 use rosc::OscPacket;
@@ -21,19 +21,19 @@ struct TestComponent {
 #[derive(Component)]
 struct TestBundle {
     _t: TestEntity,
-    receiver: OscMethod,
+    receiver: MultiAddressOscMethod,
     test_component: TestComponent,
 }
 
-fn send_single(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut OscMethod>) {
+fn send_single(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut MultiAddressOscMethod>) {
     disp.dispatch(vec![OscPacket::Message(OscMessage { addr: "/foo".to_string(), args: vec![1i32.into()] })], method_query);
 }
 
-fn send_wildcard(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut OscMethod>) {
+fn send_wildcard(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut MultiAddressOscMethod>) {
     disp.dispatch(vec![OscPacket::Message(OscMessage { addr: "/*/value".to_string(), args: vec![1i32.into()] })], method_query);
 }
 
-fn send_bundle(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut OscMethod>) {
+fn send_bundle(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut MultiAddressOscMethod>) {
     let new_msg = OscBundle {
         timetag: OscTime { seconds: 0, fractional: 0 },
         content: vec![
@@ -51,7 +51,7 @@ fn send_bundle(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut OscMeth
     disp.dispatch(vec![OscPacket::Bundle(new_msg)], method_query);
 }
 
-fn react_to_message(mut query: Query<(&TestEntity, &mut OscMethod, &mut TestComponent), Changed<OscMethod>>) {
+fn react_to_message(mut query: Query<(&TestEntity, &mut MultiAddressOscMethod, &mut TestComponent), Changed<MultiAddressOscMethod>>) {
     for (_, mut osc_receiver, mut test_component) in query.iter_mut() {
         let new_msg = osc_receiver.get_message();
         if let Some(msg) = new_msg {
@@ -80,7 +80,7 @@ fn dispatch_osc_message() {
     let test_entity_id = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new(vec!["/foo".into()]).expect(""),
+        receiver: MultiAddressOscMethod::new(vec!["/foo".into()]).expect(""),
     }).id();
 
     update_stage.run(&mut world);
@@ -102,17 +102,17 @@ fn dispatch_osc_message_to_multiple_targets() {
     let test_entity_id1 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new(vec!["/entity1/value".into()]).expect(""),
+        receiver: MultiAddressOscMethod::new(vec!["/entity1/value".into()]).expect(""),
     }).id();
     let test_entity_id2 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new(vec!["/entity2/value".into()]).expect(""),
+        receiver: MultiAddressOscMethod::new(vec!["/entity2/value".into()]).expect(""),
     }).id();
     let test_entity_id3 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new(vec!["/entity3/value".into()]).expect(""),
+        receiver: MultiAddressOscMethod::new(vec!["/entity3/value".into()]).expect(""),
     }).id();
 
     update_stage.run(&mut world);
@@ -136,17 +136,17 @@ fn dispatch_osc_bundle() {
     let test_entity_id1 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new(vec!["/entity1/value".into()]).expect(""),
+        receiver: MultiAddressOscMethod::new(vec!["/entity1/value".into()]).expect(""),
     }).id();
     let test_entity_id2 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new(vec!["/entity2/value".into()]).expect(""),
+        receiver: MultiAddressOscMethod::new(vec!["/entity2/value".into()]).expect(""),
     }).id();
     let test_entity_id3 = world.spawn().insert_bundle(TestBundle {
         _t: TestEntity,
         test_component: TestComponent { value: 0 },
-        receiver: OscMethod::new(vec!["/entity3/value".into()]).expect(""),
+        receiver: MultiAddressOscMethod::new(vec!["/entity3/value".into()]).expect(""),
     }).id();
 
     update_stage.run(&mut world);

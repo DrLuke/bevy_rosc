@@ -11,7 +11,7 @@
 //! ```no_run
 //! use bevy::prelude::*;
 //! use bevy_rosc::OscDispatcher;
-//! use bevy_rosc::OscMethod;
+//! use bevy_rosc::MultiAddressOscMethod;
 //!
 //! #[derive(Component)]
 //! struct ExampleEntity;
@@ -20,17 +20,17 @@
 //! #[derive(Component)]
 //! struct ExampleBundle {
 //!     _t: ExampleEntity,
-//!     receiver: OscMethod,
+//!     receiver: MultiAddressOscMethod,
 //! }
 //!
 //! fn spawn(mut commands: Commands) {
 //!     commands.spawn_bundle(ExampleBundle {
 //!             _t: ExampleEntity,
-//!             receiver: OscMethod::new(vec!["/some/address".into()]).expect(""),
+//!             receiver: MultiAddressOscMethod::new(vec!["/some/address".into()]).expect(""),
 //!         });
 //! }
 //!
-//! fn osc_printer(mut query: Query<&mut OscMethod, (Changed<OscMethod>)>) {
+//! fn osc_printer(mut query: Query<&mut MultiAddressOscMethod, (Changed<MultiAddressOscMethod>)>) {
 //!     for mut osc_method in query.iter_mut() {
 //!         match osc_method.get_message() {
 //!             Some(message) => println!("Method {:?} received: {:?}", osc_method.get_addresses()[0], message),
@@ -54,7 +54,7 @@ mod osc_dispatcher;
 mod osc_udp_server;
 mod osc_udp_client;
 
-pub use osc_method::OscMethod;
+pub use osc_method::MultiAddressOscMethod;
 pub use osc_dispatcher::OscDispatcher;
 pub use osc_udp_server::OscUdpServer;
 pub use osc_udp_client::OscUdpClient;
