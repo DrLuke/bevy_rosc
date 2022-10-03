@@ -7,6 +7,7 @@ use bevy::prelude::*;
 use bevy_rosc::MultiAddressOscMethod;
 use bevy_rosc::OscDispatcher;
 use bevy_rosc::OscUdpServer;
+use bevy_rosc::OscMethod;
 
 #[derive(Component)]
 struct ExampleEntity;

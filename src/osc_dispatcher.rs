@@ -5,6 +5,7 @@ use bevy::prelude::*;
 use rosc::{OscBundle, OscError, OscMessage, OscPacket};
 use rosc::address::Matcher;
 use crate::MultiAddressOscMethod;
+use crate::OscMethod;
 
 /// Dispatches received [OscPacket](rosc::OscPacket)s to all [OscMethod]s with a matching address
 #[derive(Default)]
@@ -47,7 +48,7 @@ impl OscDispatcher {
 
         for mut osc_receiver in method_query.iter_mut() {
             for (index, matcher) in matchers.iter().enumerate() {
-                osc_receiver.deref_mut().match_addresses(matcher, &osc_messages[index]);
+                osc_receiver.deref_mut().match_message(matcher, &osc_messages[index]);
             }
         }
 

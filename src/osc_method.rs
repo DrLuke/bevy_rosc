@@ -3,6 +3,31 @@ use rosc::{OscError, OscMessage};
 use rosc::address::{Matcher, OscAddress};
 use std::collections::VecDeque;
 
+/// An OSC Method is capable of receiving OSC messages at one or multiple addresses.
+pub trait OscMethod {
+    /// Returns all the addresses of this OSC method
+    fn get_addresses(&self) -> Vec<OscAddress>;
+    /// Receive an OSC message and do something with it, like storing it in a receive queue
+    fn receive_message(&mut self, osc_message: OscMessage);
+    /// Check if an OSC message's address pattern matches with the method's address and receive it
+    /// if it does. Also returns true if it's a match, and false otherwise.
+    ///
+    /// # Arguments
+    ///
+    /// * `matcher` The precomputed `rosc::address::Matcher` of the `rosc::types::OscMessage`'s address pattern
+    ///
+    /// * `message` The `rosc::types::OscMessage` that is being checked
+    fn match_message(&mut self, matcher: &Matcher, message: &OscMessage) -> bool {
+        for addr in &self.get_addresses() {
+            if matcher.match_address(addr) {
+                self.receive_message(message.clone());
+                return true;
+            }
+        }
+        false
+    }
+}
+
 /// Bevy component that can receive OSC messages at one or multiple addresses
 #[derive(Component)]
 pub struct MultiAddressOscMethod {
@@ -15,13 +40,6 @@ pub struct MultiAddressOscMethod {
 impl MultiAddressOscMethod {
     /// Gets the oldest message from the message queue
     pub fn get_message(&mut self) -> Option<OscMessage> { self.messages.pop_front() }
-    pub fn get_addresses(&self) -> Vec<OscAddress> { self.addresses.clone() }
-
-    /// Receives an OSC message and stores it at the end of the message queue.
-    /// This method is called by the OSC dispatcher after successfully matching an incoming OSC message's address pattern to the OSC method's address.
-    pub fn receive_message(&mut self, osc_message: OscMessage) {
-        self.messages.push_back(osc_message);
-    }
 
     /// Returns a new `OscMethod`
     ///
@@ -40,14 +58,9 @@ impl MultiAddressOscMethod {
             messages: Default::default(),
         })
     }
+}
 
-    /// Checks if OscMethod's addresses are matched by matcher and receives the message if it does
-    pub fn match_addresses(&mut self, matcher: &Matcher, message: &OscMessage) {
-        for addr in &self.addresses {
-            if matcher.match_address(addr) {
-                self.receive_message(message.clone());
-                return;
-            }
-        }
-    }
+impl OscMethod for MultiAddressOscMethod {
+    fn get_addresses(&self) -> Vec<OscAddress> { self.addresses.clone() }
+    fn receive_message(&mut self, osc_message: OscMessage) { self.messages.push_back(osc_message) }
 }

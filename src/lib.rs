@@ -12,6 +12,7 @@
 //! use bevy::prelude::*;
 //! use bevy_rosc::OscDispatcher;
 //! use bevy_rosc::MultiAddressOscMethod;
+//! use bevy_rosc::OscMethod;
 //!
 //! #[derive(Component)]
 //! struct ExampleEntity;
@@ -54,7 +55,7 @@ mod osc_dispatcher;
 mod osc_udp_server;
 mod osc_udp_client;
 
-pub use osc_method::MultiAddressOscMethod;
+pub use osc_method::{OscMethod, MultiAddressOscMethod};
 pub use osc_dispatcher::OscDispatcher;
 pub use osc_udp_server::OscUdpServer;
 pub use osc_udp_client::OscUdpClient;

@@ -12,6 +12,7 @@ use bevy_rosc::MultiAddressOscMethod;
 use bevy_rosc::OscDispatcher;
 use rosc::OscMessage;
 use rosc::OscPacket;
+use bevy_rosc::OscMethod;
 
 #[derive(Component)]
 struct ExampleEntity;
