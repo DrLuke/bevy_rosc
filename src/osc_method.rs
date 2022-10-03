@@ -28,7 +28,7 @@ pub trait OscMethod {
     }
 }
 
-/// Bevy component that can receive OSC messages at one or multiple addresses
+/// Bevy component that can receive OSC messages at multiple addresses
 #[derive(Component)]
 pub struct MultiAddressOscMethod {
     /// Valid OSC addresses
@@ -41,15 +41,15 @@ impl MultiAddressOscMethod {
     /// Gets the oldest message from the message queue
     pub fn get_message(&mut self) -> Option<OscMessage> { self.messages.pop_front() }
 
-    /// Returns a new `OscMethod`
+    /// Returns a new `MultiAddressOscMethod`
     ///
     /// # Arguments
     ///
-    /// * `addresses` - A valid OSC address. Must start with a `/` and must only contain printable ASCII characters except for ` `(space), `#`, `*`, `,`, `?`, `[`, `]`, `{`, `}`. For example, `/foo/bar/123` would be a valid address.
+    /// * `addresses` - Valid OSC addresses. Must start with a `/` and must only contain printable ASCII characters except for ` `(space), `#`, `*`, `,`, `?`, `[`, `]`, `{`, `}`. For example, `/foo/bar/123` would be a valid address.
     ///
     /// # Errors
     ///
-    /// This function will return a [BadAddress](rosc::OscError::BadAddress) error when the address is invalid.
+    /// This function will return a [BadAddress](rosc::OscError::BadAddress) error when any address is invalid.
     pub fn new(addresses: Vec<String>) -> Result<Self, OscError> {
         let osc_addresses: Result<Vec<OscAddress>, _> = addresses.into_iter().map(|a| OscAddress::new(a)).collect();
 
@@ -62,5 +62,40 @@ impl MultiAddressOscMethod {
 
 impl OscMethod for MultiAddressOscMethod {
     fn get_addresses(&self) -> Vec<OscAddress> { self.addresses.clone() }
+    fn receive_message(&mut self, osc_message: OscMessage) { self.messages.push_back(osc_message) }
+}
+
+/// Bevy component that can receive OSC messages at one addresses
+#[derive(Component)]
+pub struct SingleAddressOscMethod {
+    /// Valid OSC address
+    address: OscAddress,
+    /// Received OSC messages that matched one of the addresses
+    messages: VecDeque<OscMessage>,
+}
+
+impl SingleAddressOscMethod {
+    /// Gets the oldest message from the message queue
+    pub fn get_message(&mut self) -> Option<OscMessage> { self.messages.pop_front() }
+
+    /// Returns a new `SingleAddressOscMethod`
+    ///
+    /// # Arguments
+    ///
+    /// * `address` - A valid OSC address. Must start with a `/` and must only contain printable ASCII characters except for ` `(space), `#`, `*`, `,`, `?`, `[`, `]`, `{`, `}`. For example, `/foo/bar/123` would be a valid address.
+    ///
+    /// # Errors
+    ///
+    /// This function will return a [BadAddress](rosc::OscError::BadAddress) error when the address is invalid.
+    pub fn new(address: String) -> Result<Self, OscError> {
+        Ok(Self {
+            address: OscAddress::new(address)?,
+            messages: Default::default(),
+        })
+    }
+}
+
+impl OscMethod for SingleAddressOscMethod {
+    fn get_addresses(&self) -> Vec<OscAddress> { vec![self.address.clone()] }
     fn receive_message(&mut self, osc_message: OscMessage) { self.messages.push_back(osc_message) }
 }
