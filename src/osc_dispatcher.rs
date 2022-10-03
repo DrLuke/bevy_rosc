@@ -71,3 +71,23 @@ impl OscDispatcher {
     }
 }
 
+/// An event containing all OSC messages that were received this frame and their corresponding
+/// [`rosc::address:Matcher`]s
+pub struct OscDispatchEvent {
+    messages: Vec<(Matcher, OscMessage)>,
+}
+
+/// This reads [`OscDispatcherEvent`]s sent by the dispatcher and forwards the incoming messages
+/// to [`OscMethod`]s
+pub fn method_dispatcher_system<T: OscMethod + Component>(
+    mut event_reader: EventReader<OscDispatchEvent>,
+    mut osc_method_query: Query<&mut T>,
+) {
+    for ev in event_reader.iter() {
+        for mut osc_method in osc_method_query.iter_mut() {
+            for (matcher, message) in &ev.messages {
+                osc_method.match_message(matcher, message);
+            }
+        }
+    }
+}
