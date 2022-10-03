@@ -14,9 +14,9 @@ pub trait OscMethod {
     ///
     /// # Arguments
     ///
-    /// * `matcher` The precomputed `rosc::address::Matcher` of the `rosc::types::OscMessage`'s address pattern
+    /// * `matcher` The precomputed [`rosc::address::Matcher`] of the [`rosc::types::OscMessage`]'s address pattern
     ///
-    /// * `message` The `rosc::types::OscMessage` that is being checked
+    /// * `message` The [`rosc::types::OscMessage`] that is being checked
     fn match_message(&mut self, matcher: &Matcher, message: &OscMessage) -> bool {
         for addr in &self.get_addresses() {
             if matcher.match_address(addr) {
