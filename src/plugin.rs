@@ -1,6 +1,7 @@
 use crate::osc_dispatcher::{method_dispatcher_system, OscDispatchEvent};
 use crate::osc_method::SingleAddressOscMethod;
 use crate::{MultiAddressOscMethod, OscDispatcher, OscUdpServer};
+use bevy::prelude::CoreStage::PreUpdate;
 use bevy::prelude::*;
 use std::io;
 use std::net::ToSocketAddrs;
@@ -49,7 +50,7 @@ impl<A: ToSocketAddrs + Send + Sync + 'static + Clone> Plugin for BevyRoscPlugin
                     .spawn()
                     .insert(OscUdpServer::new(addrs.clone()).unwrap());
             })
-            .add_system(osc_receive_system)
+            .add_system_to_stage(PreUpdate, osc_receive_system)
             .add_system(method_dispatcher_system::<SingleAddressOscMethod>)
             .add_system(method_dispatcher_system::<MultiAddressOscMethod>);
     }
