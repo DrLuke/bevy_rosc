@@ -50,12 +50,14 @@
 //! ```
 extern crate rosc;
 
-mod osc_method;
 mod osc_dispatcher;
-mod osc_udp_server;
+mod osc_method;
 mod osc_udp_client;
+mod osc_udp_server;
+mod plugin;
 
-pub use osc_method::{OscMethod, MultiAddressOscMethod};
-pub use osc_dispatcher::OscDispatcher;
-pub use osc_udp_server::OscUdpServer;
+pub use osc_dispatcher::{OscDispatchEvent, OscDispatcher};
+pub use osc_method::{MultiAddressOscMethod, OscMethod, SingleAddressOscMethod};
 pub use osc_udp_client::OscUdpClient;
+pub use osc_udp_server::OscUdpServer;
+pub use plugin::BevyRoscPlugin;
