@@ -52,7 +52,7 @@ impl MultiAddressOscMethod {
     /// This function will return a [BadAddress](rosc::OscError::BadAddress) error when any address is invalid.
     pub fn new(addresses: Vec<String>) -> Result<Self, OscError> {
         // TODO: Make sure addresses is not empty
-        let osc_addresses: Result<Vec<OscAddress>, _> = addresses.into_iter().map(|a| OscAddress::new(a)).collect();
+        let osc_addresses: Result<Vec<OscAddress>, _> = addresses.into_iter().map(OscAddress::new).collect();
 
         Ok(Self {
             addresses: osc_addresses?,
