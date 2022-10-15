@@ -1,6 +1,6 @@
+use bevy::prelude::*;
 use std::io;
 use std::io::ErrorKind;
-use bevy::prelude::*;
 use std::net::{ToSocketAddrs, UdpSocket};
 
 use rosc::decoder::{decode_udp, MTU};
@@ -8,23 +8,21 @@ use rosc::{OscError, OscPacket};
 
 #[derive(Component)]
 pub struct OscUdpServer {
-    socket: UdpSocket
+    socket: UdpSocket,
 }
 
 #[derive(Debug)]
 pub enum OscUdpReceiveError {
     OscError(OscError),
-    IoError(io::Error)
+    IoError(io::Error),
 }
 
-impl OscUdpServer{
+impl OscUdpServer {
     pub fn new<A: ToSocketAddrs>(addr: A) -> Result<Self, io::Error> {
         let socket = UdpSocket::bind(addr)?;
         socket.set_nonblocking(true)?;
 
-        Ok(Self {
-            socket
-        })
+        Ok(Self { socket })
     }
 
     pub fn recv(&self) -> Result<Option<OscPacket>, OscUdpReceiveError> {
@@ -32,15 +30,13 @@ impl OscUdpServer{
 
         let result = self.socket.recv(&mut buf);
         match result {
-            Ok(num_bytes) => {
-                match decode_udp(&buf[0..num_bytes]) {
-                    Ok((_, osc_packet)) => Ok(Some(osc_packet)),
-                    Err(e) => Err(OscUdpReceiveError::OscError(e))
-                }
+            Ok(num_bytes) => match decode_udp(&buf[0..num_bytes]) {
+                Ok((_, osc_packet)) => Ok(Some(osc_packet)),
+                Err(e) => Err(OscUdpReceiveError::OscError(e)),
             },
 
             Err(err) if err.kind() == ErrorKind::WouldBlock => Ok(None),
-            Err(err) => Err(OscUdpReceiveError::IoError(err))
+            Err(err) => Err(OscUdpReceiveError::IoError(err)),
         }
     }
 }

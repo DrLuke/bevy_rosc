@@ -2,39 +2,29 @@
 //!
 //!
 //!
-//! # Usage
+//! # Basic usage
 //!
-//! First you need to add the [dispatcher](bevy_rosc::OscDispatcher) as a resource to your app.
-//! Then add an [OscMethod](bevy_rosc::OscMethod) component to your entity.
-//! The dispatcher will now deliver all OSC messages that match the method's address to your component.
+//! Add the [`BevyRoscPlugin`](plugin::BevyRoscPlugin) to your app, choosing the ip address at which you want to receive at.
+//! Then add either the [`SingleAddressOscMethod`](osc_method::SingleAddressOscMethod) or [`MultiAddressOscMethod`](osc_method::MultiAddressOscMethod) component to your entity.
+//! `bevy_rosc` will automatically deliver matching messages to the component, where you can then retrieve them with the [`get_address`](osc_method::MultiAddressOscMethod::get_message) method.
 //!
 //! ```no_run
 //! use bevy::prelude::*;
 //! use bevy_rosc::OscDispatcher;
-//! use bevy_rosc::MultiAddressOscMethod;
+//! use bevy_rosc::SingleAddressOscMethod;
 //! use bevy_rosc::OscMethod;
-//!
-//! #[derive(Component)]
-//! struct ExampleEntity;
-//!
-//! #[derive(Bundle)]
-//! #[derive(Component)]
-//! struct ExampleBundle {
-//!     _t: ExampleEntity,
-//!     receiver: MultiAddressOscMethod,
-//! }
+//! use bevy_rosc::BevyRoscPlugin;
 //!
 //! fn spawn(mut commands: Commands) {
-//!     commands.spawn_bundle(ExampleBundle {
-//!             _t: ExampleEntity,
-//!             receiver: MultiAddressOscMethod::new(vec!["/some/address".into()]).expect(""),
-//!         });
+//!     commands
+//!         .spawn()
+//!         .insert(SingleAddressOscMethod::new("/test/address".into()).unwrap());
 //! }
 //!
-//! fn osc_printer(mut query: Query<&mut MultiAddressOscMethod, (Changed<MultiAddressOscMethod>)>) {
+//! fn print_received_osc_packets(mut query: Query<&mut SingleAddressOscMethod, (Changed<SingleAddressOscMethod>)>) {
 //!     for mut osc_method in query.iter_mut() {
 //!         match osc_method.get_message() {
-//!             Some(message) => println!("Method {:?} received: {:?}", osc_method.get_addresses()[0], message),
+//!             Some(message) => println!("Method {:?} received: {:?}", osc_method.get_address(), message),
 //!             None => {}
 //!         }
 //!     }
@@ -43,9 +33,10 @@
 //! fn main() {
 //!     App::new()
 //!         .add_plugins(MinimalPlugins)
-//!         .insert_resource(OscDispatcher::default())
-//!         .add_system(osc_printer)
-//!         .run()
+//!         .add_plugin(BevyRoscPlugin::new("0.0.0.0:31337").unwrap())
+//!         .add_startup_system(startup)
+//!         .add_system(print_received_osc_packets)
+//!         .run();
 //! }
 //! ```
 extern crate rosc;
@@ -56,7 +47,7 @@ mod osc_udp_client;
 mod osc_udp_server;
 mod plugin;
 
-pub use osc_dispatcher::{OscDispatchEvent, OscDispatcher};
+pub use osc_dispatcher::{method_dispatcher_system, OscDispatchEvent, OscDispatcher};
 pub use osc_method::{MultiAddressOscMethod, OscMethod, SingleAddressOscMethod};
 pub use osc_udp_client::OscUdpClient;
 pub use osc_udp_server::OscUdpServer;

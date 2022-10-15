@@ -1,23 +1,21 @@
-/// Plugin implementing the default functionality for bevy_rosc
-/// It opens a single UDP server, and adds dispatching systems for both single and multi address
-/// osc methods.
-
-use std::io;
-use std::net::ToSocketAddrs;
-use bevy::prelude::*;
-use crate::{MultiAddressOscMethod, OscDispatcher, OscUdpServer};
 use crate::osc_dispatcher::{method_dispatcher_system, OscDispatchEvent};
 use crate::osc_method::SingleAddressOscMethod;
+use crate::{MultiAddressOscMethod, OscDispatcher, OscUdpServer};
+use bevy::prelude::*;
+use std::io;
+use std::net::ToSocketAddrs;
 
+/// Plugin implementing the default functionality for bevy_rosc
+///
+/// It opens a single UDP server, and adds dispatching systems for both single and multi address
+/// osc methods.
 pub struct BevyRoscPlugin<A: ToSocketAddrs + Sync + 'static + Clone> {
     addrs: A,
 }
 
 impl<A: ToSocketAddrs + Send + Sync + 'static + Clone> BevyRoscPlugin<A> {
     pub fn new(addrs: A) -> Result<Self, io::Error> {
-        Ok(BevyRoscPlugin {
-            addrs
-        })
+        Ok(BevyRoscPlugin { addrs })
     }
 }
 
@@ -32,7 +30,7 @@ fn osc_receive_system(
             if let Ok(o) = osc_udp_server.recv() {
                 match o {
                     Some(p) => osc_packets.push(p),
-                    None => break
+                    None => break,
                 }
             }
         }
@@ -44,14 +42,15 @@ fn osc_receive_system(
 impl<A: ToSocketAddrs + Send + Sync + 'static + Clone> Plugin for BevyRoscPlugin<A> {
     fn build(&self, app: &mut App) {
         let addrs = self.addrs.clone();
-        app
-            .insert_resource(OscDispatcher::default())
+        app.insert_resource(OscDispatcher::default())
             .add_event::<OscDispatchEvent>()
-            .add_startup_system(move |mut commands: Commands| { commands.spawn().insert(OscUdpServer::new(addrs.clone()).unwrap()); })
+            .add_startup_system(move |mut commands: Commands| {
+                commands
+                    .spawn()
+                    .insert(OscUdpServer::new(addrs.clone()).unwrap());
+            })
             .add_system(osc_receive_system)
             .add_system(method_dispatcher_system::<SingleAddressOscMethod>)
-            .add_system(method_dispatcher_system::<MultiAddressOscMethod>)
-        ;
+            .add_system(method_dispatcher_system::<MultiAddressOscMethod>);
     }
 }
-

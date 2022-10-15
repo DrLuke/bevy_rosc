@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use rosc::{OscError, OscMessage};
 use rosc::address::{Matcher, OscAddress};
+use rosc::{OscError, OscMessage};
 use std::collections::VecDeque;
 
 /// An OSC Method is capable of receiving OSC messages at one or multiple addresses.
@@ -14,9 +14,9 @@ pub trait OscMethod {
     ///
     /// # Arguments
     ///
-    /// * `matcher` The precomputed [`rosc::address::Matcher`] of the [`rosc::types::OscMessage`]'s address pattern
+    /// * `matcher` The precomputed [`rosc::address::Matcher`] of the [`rosc::OscMessage`]'s address pattern
     ///
-    /// * `message` The [`rosc::types::OscMessage`] that is being checked
+    /// * `message` The [`rosc::OscMessage`] that is being checked
     fn match_message(&mut self, matcher: &Matcher, message: &OscMessage) -> bool {
         for addr in &self.get_addresses() {
             if matcher.match_address(addr) {
@@ -39,7 +39,9 @@ pub struct MultiAddressOscMethod {
 
 impl MultiAddressOscMethod {
     /// Gets the oldest message from the message queue
-    pub fn get_message(&mut self) -> Option<OscMessage> { self.messages.pop_front() }
+    pub fn get_message(&mut self) -> Option<OscMessage> {
+        self.messages.pop_front()
+    }
 
     /// Returns a new `MultiAddressOscMethod`
     ///
@@ -52,7 +54,8 @@ impl MultiAddressOscMethod {
     /// This function will return a [BadAddress](rosc::OscError::BadAddress) error when any address is invalid.
     pub fn new(addresses: Vec<String>) -> Result<Self, OscError> {
         // TODO: Make sure addresses is not empty
-        let osc_addresses: Result<Vec<OscAddress>, _> = addresses.into_iter().map(OscAddress::new).collect();
+        let osc_addresses: Result<Vec<OscAddress>, _> =
+            addresses.into_iter().map(OscAddress::new).collect();
 
         Ok(Self {
             addresses: osc_addresses?,
@@ -62,8 +65,12 @@ impl MultiAddressOscMethod {
 }
 
 impl OscMethod for MultiAddressOscMethod {
-    fn get_addresses(&self) -> Vec<OscAddress> { self.addresses.clone() }
-    fn receive_message(&mut self, osc_message: OscMessage) { self.messages.push_back(osc_message) }
+    fn get_addresses(&self) -> Vec<OscAddress> {
+        self.addresses.clone()
+    }
+    fn receive_message(&mut self, osc_message: OscMessage) {
+        self.messages.push_back(osc_message)
+    }
 }
 
 /// Bevy component that can receive OSC messages at one addresses
@@ -77,7 +84,9 @@ pub struct SingleAddressOscMethod {
 
 impl SingleAddressOscMethod {
     /// Gets the oldest message from the message queue
-    pub fn get_message(&mut self) -> Option<OscMessage> { self.messages.pop_front() }
+    pub fn get_message(&mut self) -> Option<OscMessage> {
+        self.messages.pop_front()
+    }
 
     /// Returns a new `SingleAddressOscMethod`
     ///
@@ -96,10 +105,16 @@ impl SingleAddressOscMethod {
     }
 
     /// Convenience method
-    pub fn get_address(&self) -> OscAddress { self.get_addresses()[0].clone() }
+    pub fn get_address(&self) -> OscAddress {
+        self.get_addresses()[0].clone()
+    }
 }
 
 impl OscMethod for SingleAddressOscMethod {
-    fn get_addresses(&self) -> Vec<OscAddress> { vec![self.address.clone()] }
-    fn receive_message(&mut self, osc_message: OscMessage) { self.messages.push_back(osc_message) }
+    fn get_addresses(&self) -> Vec<OscAddress> {
+        vec![self.address.clone()]
+    }
+    fn receive_message(&mut self, osc_message: OscMessage) {
+        self.messages.push_back(osc_message)
+    }
 }
