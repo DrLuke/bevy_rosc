@@ -1,75 +1,75 @@
-//! UDP server example
+//! A minimal example setting up bevy_rosc without the plugin
 
 extern crate bevy_rosc;
 
 use bevy::prelude::*;
 
-use bevy_rosc::MultiAddressOscMethod;
-use bevy_rosc::OscDispatcher;
-use bevy_rosc::OscUdpServer;
 use bevy_rosc::OscMethod;
+use bevy_rosc::{method_dispatcher_system, MultiAddressOscMethod, OscDispatchEvent};
+use bevy_rosc::{OscDispatcher, OscUdpServer};
 
-#[derive(Component)]
-struct ExampleEntity;
-
-#[derive(Bundle)]
-#[derive(Component)]
-struct ExampleBundle {
-    _t: ExampleEntity,
-    receiver: MultiAddressOscMethod,
-}
-
-/// Startup system that just spawns some entity bundles
 fn startup(mut commands: Commands) {
     println!("** Startup");
 
-    // Spawn a bundle with an OSC method that can have OSC packets dispatched to it
-    commands.spawn_bundle(ExampleBundle {
-        _t: ExampleEntity,
-        receiver: MultiAddressOscMethod::new(vec!["/beat/mute".into()]).expect(""),
-    });
+    commands
+        .spawn()
+        // This is the component that receives OSC messages
+        .insert(MultiAddressOscMethod::new(vec!["/test/address".into()]).unwrap());
 
     // Spawn UDP server that can receive OSC packets on port 31337
-    commands.spawn().insert(OscUdpServer::new("0.0.0.0:31337").unwrap());
+    commands
+        .spawn()
+        .insert(OscUdpServer::new("0.0.0.0:31337").unwrap());
 }
 
-/// System that listens for any `OscMethod` that has changed and then prints out the received OscMessage
-fn print_received_osc_packets(mut query: Query<&mut MultiAddressOscMethod, Changed<MultiAddressOscMethod>>) {
-    for mut osc_receiver in query.iter_mut() {
-        let new_msg = osc_receiver.get_message();
+/// System that listens for any `MultiAddressOscMethod` that has changed and then prints out the received OscMessage
+fn print_received_osc_packets(
+    mut query: Query<&mut MultiAddressOscMethod, Changed<MultiAddressOscMethod>>,
+) {
+    for mut osc_method in query.iter_mut() {
+        let new_msg = osc_method.get_message();
         if let Some(msg) = new_msg {
-            println!("Method {:?} received: {:?}", osc_receiver.get_addresses()[0], msg)
+            println!(
+                "Method {:?} received: {:?}",
+                osc_method.get_addresses()[0],
+                msg
+            )
         }
     }
 }
 
-/// Read `OscPacket`s from udp server until no more messages are received and then dispatch them
-fn receive_packets(mut disp: ResMut<OscDispatcher>, mut query: Query<&mut OscUdpServer>, method_query: Query<&mut MultiAddressOscMethod>) {
-    let osc_udp_server = query.single_mut();
+/// System that receives messages via UDP and then forwards them to the dispatcher
+fn osc_receive_system(
+    mut osc_dispatcher: ResMut<OscDispatcher>,
+    mut query: Query<&mut OscUdpServer>,
+    event_writer: EventWriter<OscDispatchEvent>,
+) {
     let mut osc_packets = vec![];
-
-    loop {
-        if let Ok(o) = osc_udp_server.recv() {
-            match o {
-                Some(p) => osc_packets.push(p),
-                None => break
+    for osc_udp_server in query.iter_mut() {
+        loop {
+            if let Ok(o) = osc_udp_server.recv() {
+                match o {
+                    Some(p) => osc_packets.push(p),
+                    None => break,
+                }
             }
         }
     }
 
-    disp.dispatch(osc_packets, method_query);
+    osc_dispatcher.dispatch(osc_packets, event_writer);
 }
 
 fn main() {
     App::new()
         .add_plugins(MinimalPlugins)
-
         // Add dispatcher resource
         .insert_resource(OscDispatcher::default())
-
+        // Event sent by the dispatcher
+        .add_event::<OscDispatchEvent>()
+        // System that received the dispatch event and attempts to match received messages with all `MultiAddressOscMethod` components
+        .add_system(method_dispatcher_system::<MultiAddressOscMethod>)
         .add_startup_system(startup)
         .add_system(print_received_osc_packets)
-        .add_system(receive_packets)
-
+        .add_system(osc_receive_system)
         .run();
 }
