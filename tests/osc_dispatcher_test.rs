@@ -2,156 +2,120 @@ extern crate bevy_rosc;
 
 use bevy::prelude::*;
 
-use bevy_rosc::MultiAddressOscMethod;
+use bevy_rosc::OscDispatchEvent;
 use bevy_rosc::OscDispatcher;
-use rosc::{OscBundle, OscMessage, OscTime};
+use rosc::address::Matcher;
 use rosc::OscPacket;
-use rosc::OscType;
+use rosc::{OscBundle, OscMessage, OscTime};
 
-
-#[derive(Component)]
-struct TestEntity;
-
-#[derive(Component)]
-struct TestComponent {
-    pub value: i32,
+fn dispatch_single(mut disp: ResMut<OscDispatcher>, event_writer: EventWriter<OscDispatchEvent>) {
+    disp.dispatch(
+        vec![OscPacket::Message(OscMessage {
+            addr: "/foo".into(),
+            args: vec![],
+        })],
+        event_writer,
+    );
 }
 
-#[derive(Bundle)]
-#[derive(Component)]
-struct TestBundle {
-    _t: TestEntity,
-    receiver: MultiAddressOscMethod,
-    test_component: TestComponent,
+fn check_event_single(
+    mut event_reader: EventReader<OscDispatchEvent>,
+    mut event_received: ResMut<bool>,
+) {
+    // Check if an event was received
+    *event_received.as_mut() = event_reader.iter().next().is_some();
 }
 
-fn send_single(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut MultiAddressOscMethod>) {
-    disp.dispatch(vec![OscPacket::Message(OscMessage { addr: "/foo".to_string(), args: vec![1i32.into()] })], method_query);
+#[test]
+/// Minimal test of dispatcher. Just generates a single OSC message and see if it generates an
+/// `OscDispatchEvent`.
+fn dispatch_osc_message() {
+    let mut world = World::default();
+    world.init_resource::<Events<OscDispatchEvent>>(); // Set up OscDispatchEvent to work
+
+    // Bool used to check if event was received
+    world.insert_resource(false);
+
+    let mut update_stage = SystemStage::single_threaded();
+    update_stage.add_system(dispatch_single.label("send"));
+    update_stage.add_system(check_event_single.after("send"));
+
+    world.insert_resource(OscDispatcher::default());
+
+    update_stage.run(&mut world);
+
+    // Resource is set to true if event was received
+    assert!(*world.resource::<bool>())
 }
 
-fn send_wildcard(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut MultiAddressOscMethod>) {
-    disp.dispatch(vec![OscPacket::Message(OscMessage { addr: "/*/value".to_string(), args: vec![1i32.into()] })], method_query);
-}
-
-fn send_bundle(mut disp: ResMut<OscDispatcher>, method_query: Query<&mut MultiAddressOscMethod>) {
+fn dispatch_bundle(mut disp: ResMut<OscDispatcher>, event_writer: EventWriter<OscDispatchEvent>) {
     let new_msg = OscBundle {
-        timetag: OscTime { seconds: 0, fractional: 0 },
+        timetag: OscTime {
+            seconds: 0,
+            fractional: 0,
+        },
         content: vec![
-            OscPacket::Message(OscMessage { addr: "/entity1/value".to_string(), args: vec![1i32.into()] }),
+            OscPacket::Message(OscMessage {
+                addr: "/entity1/value".to_string(),
+                args: vec![],
+            }),
             OscPacket::Bundle(OscBundle {
-                timetag: OscTime { seconds: 0, fractional: 0 },
+                timetag: OscTime {
+                    seconds: 0,
+                    fractional: 0,
+                },
                 content: vec![
-                    OscPacket::Message(OscMessage { addr: "/entity2/value".to_string(), args: vec![2i32.into()] }),
-                    OscPacket::Message(OscMessage { addr: "/entity3/value".to_string(), args: vec![3i32.into()] }),
+                    OscPacket::Message(OscMessage {
+                        addr: "/entity2/value".to_string(),
+                        args: vec![],
+                    }),
+                    OscPacket::Message(OscMessage {
+                        addr: "/entity3/value".to_string(),
+                        args: vec![],
+                    }),
                 ],
             }),
         ],
     };
 
-    disp.dispatch(vec![OscPacket::Bundle(new_msg)], method_query);
+    disp.dispatch(vec![OscPacket::Bundle(new_msg)], event_writer);
 }
 
-fn react_to_message(mut query: Query<(&TestEntity, &mut MultiAddressOscMethod, &mut TestComponent), Changed<MultiAddressOscMethod>>) {
-    for (_, mut osc_receiver, mut test_component) in query.iter_mut() {
-        let new_msg = osc_receiver.get_message();
-        if let Some(msg) = new_msg {
-            println!("{:?}", msg);
-            if msg.args.len() == 1 {
-                match msg.args[0] {
-                    OscType::Int(i) => test_component.value = i,
-                    _ => {}
-                }
-            }
-        }
-    }
+fn check_event_bundle(
+    mut event_reader: EventReader<OscDispatchEvent>,
+
+    mut received_msgs: ResMut<Vec<(Matcher, OscMessage)>>,
+) {
+    // Get all messages included in the event
+    *received_msgs.as_mut() = match event_reader.iter().next() {
+        Some(e) => e.messages.clone(),
+        None => vec![],
+    };
 }
 
 #[test]
-// Dispatch a single message to a single entity
-fn dispatch_osc_message() {
-    let mut world = World::default();
-
-    let mut update_stage = SystemStage::parallel();
-    update_stage.add_system(send_single.label("send"));
-    update_stage.add_system(react_to_message.after("send"));
-
-    world.insert_resource(OscDispatcher::default());
-
-    let test_entity_id = world.spawn().insert_bundle(TestBundle {
-        _t: TestEntity,
-        test_component: TestComponent { value: 0 },
-        receiver: MultiAddressOscMethod::new(vec!["/foo".into()]).expect(""),
-    }).id();
-
-    update_stage.run(&mut world);
-
-    assert_eq!(world.get::<TestComponent>(test_entity_id).expect("").value, 1);
-}
-
-#[test]
-// Dispatch a single message to multiple entities using wildcard
-fn dispatch_osc_message_to_multiple_targets() {
-    let mut world = World::default();
-
-    let mut update_stage = SystemStage::parallel();
-    update_stage.add_system(send_wildcard.label("send"));
-    update_stage.add_system(react_to_message.after("send"));
-
-    world.insert_resource(OscDispatcher::default());
-
-    let test_entity_id1 = world.spawn().insert_bundle(TestBundle {
-        _t: TestEntity,
-        test_component: TestComponent { value: 0 },
-        receiver: MultiAddressOscMethod::new(vec!["/entity1/value".into()]).expect(""),
-    }).id();
-    let test_entity_id2 = world.spawn().insert_bundle(TestBundle {
-        _t: TestEntity,
-        test_component: TestComponent { value: 0 },
-        receiver: MultiAddressOscMethod::new(vec!["/entity2/value".into()]).expect(""),
-    }).id();
-    let test_entity_id3 = world.spawn().insert_bundle(TestBundle {
-        _t: TestEntity,
-        test_component: TestComponent { value: 0 },
-        receiver: MultiAddressOscMethod::new(vec!["/entity3/value".into()]).expect(""),
-    }).id();
-
-    update_stage.run(&mut world);
-
-    assert_eq!(world.get::<TestComponent>(test_entity_id1).expect("").value, 1);
-    assert_eq!(world.get::<TestComponent>(test_entity_id2).expect("").value, 1);
-    assert_eq!(world.get::<TestComponent>(test_entity_id3).expect("").value, 1);
-}
-
-#[test]
-// Dispatch a single message to multiple entities using wildcard
+/// Same as above, but with an `OscBundle`, which has to be unpacked into it's constituent messages
+/// before writing the event. We have to check that all messages found their way into the event.
 fn dispatch_osc_bundle() {
     let mut world = World::default();
+    world.init_resource::<Events<OscDispatchEvent>>(); // Set up OscDispatchEvent to work
 
-    let mut update_stage = SystemStage::parallel();
-    update_stage.add_system(send_bundle.label("send"));
-    update_stage.add_system(react_to_message.after("send"));
+    // Messages that were included in the event
+    let msgs: Vec<(Matcher, OscMessage)> = vec![];
+    world.insert_resource(msgs);
+
+    let mut update_stage = SystemStage::single_threaded();
+    update_stage.add_system(dispatch_bundle.label("send"));
+    update_stage.add_system(check_event_bundle.after("send"));
 
     world.insert_resource(OscDispatcher::default());
 
-    let test_entity_id1 = world.spawn().insert_bundle(TestBundle {
-        _t: TestEntity,
-        test_component: TestComponent { value: 0 },
-        receiver: MultiAddressOscMethod::new(vec!["/entity1/value".into()]).expect(""),
-    }).id();
-    let test_entity_id2 = world.spawn().insert_bundle(TestBundle {
-        _t: TestEntity,
-        test_component: TestComponent { value: 0 },
-        receiver: MultiAddressOscMethod::new(vec!["/entity2/value".into()]).expect(""),
-    }).id();
-    let test_entity_id3 = world.spawn().insert_bundle(TestBundle {
-        _t: TestEntity,
-        test_component: TestComponent { value: 0 },
-        receiver: MultiAddressOscMethod::new(vec!["/entity3/value".into()]).expect(""),
-    }).id();
-
     update_stage.run(&mut world);
 
-    assert_eq!(world.get::<TestComponent>(test_entity_id1).expect("").value, 1);
-    assert_eq!(world.get::<TestComponent>(test_entity_id2).expect("").value, 2);
-    assert_eq!(world.get::<TestComponent>(test_entity_id3).expect("").value, 3);
+    // Resource is set to true if event was received
+    let received_msgs = world.resource::<Vec<(Matcher, OscMessage)>>();
+    assert_eq!(3, received_msgs.len());
+    assert_eq!("/entity1/value", received_msgs[0].1.addr);
+    assert_eq!("/entity2/value", received_msgs[1].1.addr);
+    assert_eq!("/entity3/value", received_msgs[2].1.addr);
 }

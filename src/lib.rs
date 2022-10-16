@@ -34,7 +34,7 @@
 //!     App::new()
 //!         .add_plugins(MinimalPlugins)
 //!         .add_plugin(BevyRoscPlugin::new("0.0.0.0:31337").unwrap())
-//!         .add_startup_system(startup)
+//!         .add_startup_system(spawn)
 //!         .add_system(print_received_osc_packets)
 //!         .run();
 //! }
