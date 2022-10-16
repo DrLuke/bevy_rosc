@@ -8,57 +8,83 @@ Send and receive [OSC 1.0](https://github.com/CNMAT/OpenSoundControl.org/blob/ma
 
 ## Usage
 
-There are two core components to use OSC in bevy: The [`OscMethod`](src/osc_method.rs), a component that can receive OSC messages at one or more address, and the [`OscDispatcher`](src/osc_dispatcher.rs), which takes received OSC messages and delivers them to the matching OSC methods.
+To quickly get started just add the plugin to your app:
 
-Start by adding an `OscMethod` to your entity
 ```rust
-#[derive(Component)]
-struct ExampleEntity;
+use bevy::prelude::*;
 
-#[derive(Bundle)]
-#[derive(Component)]
-struct ExampleBundle {
-    _t: ExampleEntity,
-    osc_method: OscMethod,
+use bevy_rosc::OscMethod;
+use bevy_rosc::{BevyRoscPlugin, SingleAddressOscMethod};
+
+fn main() {
+    App::new()
+        // Minimal Bevy plugins
+        .add_plugins(MinimalPlugins)
+        // Add the bevy_rosc plugin and have it listen on port 31337
+        .add_plugin(BevyRoscPlugin::new("0.0.0.0:31337").unwrap())
+        .run();
 }
+```
 
-/// Spawn ExampleBundle
+Now you can add just add `SingleAddressOscMethod` or  `MultiAddressOscMethod` to your entities.
+
+OSC methods are components that have one or more OSC address and can receive OSC messages that have a matching address pattern.
+
+```rust
 fn spawn_entity(mut commands: Commands) {
-    commands.spawn_bundle(ExampleBundle {
-        _t: ExampleEntity,
-        osc_method: OscMethod::new(vec!["/some/osc/address".into()]).expect("Method address is valid"),
-    });
+    commands.
+        spawn()
+        .insert(
+            SingleAddressOscMethod::new(vec!["/some/osc/address".into()]).unwrap()
+        );
 }
 ```
 
-Next you need to set up the dispatcher, which distributes received messages
+Then you can start retrieving OSC messages from the component!
 
 ```rust
-fn send_message(mut disp: ResMut<OscDispatcher>, time: Res<Time>, method_query: Query<&mut OscMethod>) {
-    // In this case we just create a message, but this is where you could add a UDP server for example
-    let new_msg = OscMessage { addr: "/some/*/address".to_string(), args: vec![time.time_since_startup().as_secs_f32().into()] };
-
-    disp.dispatch(vec![OscPacket::Message(new_msg)], method_query);
-}
-```
-
-Then add a system that reacts to new messages!
-
-```rust
-fn print_received_osc_packets(mut query: Query<(&ExampleEntity, &mut OscMethod), Changed<OscMethod>>) {
-    for (_, mut osc_method) in query.iter_mut() {
-        if let Some(msg) = osc_method.get_message() {
-            println!("OSC message received: {:?}", msg)
-        }
+/// System that listens for any `SingleAddressOscMethod` that has changed and prints received message
+fn print_received_osc_packets(
+    mut query: Query<&mut SingleAddressOscMethod, Changed<SingleAddressOscMethod>>,
+) {
+    for mut osc_receiver in query.iter_mut() {
+        let new_msg = osc_receiver.get_message(); // Gets the oldest received message, or `None` if there are no more left
+        if let Some(msg) = new_msg { println!("Method {:?} received: {:?}", osc_receiver.get_addresses(), msg) }
     }
 }
 ```
 
-See [examples/basic.rs](examples/basic.rs) for a full example.
+See [examples/plugin.rs](examples/plugin.rs) for a full example.
+
+If you want to receive OSC messages directly into your custom component, see [examples/custom_osc_method.rs](examples/custom_osc_method.rs)
+
+## Data flow
+```mermaid
+graph TD;
+    server1[UDP Server 1] --> dispatcher
+    server2[UDP Server 2] --> dispatcher
+    serverdot[...] --> dispatcher
+    server3[Any other source] --> dispatcher
+    dispatcher -- Write --> OscDispatchEvent{{OscDispatchEvent}}
+    OscDispatchEvent -. Read .-> system1["method_dispatcher_system::&ltSingleAddressOscMethod&gt"]
+    OscDispatchEvent -. Read ..-> system2["method_dispatcher_system::&ltMultiAddressOscMethod&gt"]
+    OscDispatchEvent -. Read ...-> system3["method_dispatcher_system::&ltMyOscMethod&gt"]
+    system1 -- Match & Receive --> comp1[(SingleAddressOscMethod)]
+    system2 -- Match & Receive --> comp2[(MultiAddressOscMethod)]
+    system3 -- Match & Receive --> comp3[(MyOscMethod)]
+```
+
+Any OSC packet that was received by any means (usually a UDP server) is sent to the dispatcher.
+It unpacks the OSC packet, retrieves all messages from it and writes an `OscDispatchEvent` containing them.
+From there, the method dispatcher system (One for each `OscMethod`-component) reads the event and iterates over all OSC method components.
+If the component's address matches the message's address pattern, the message is received by the component.
+
+The default OSC methods `SingleAddressOscMethod` and `MultiAddressOscMethod` will just store the received message in a vector, from which you have to retrieve them to do anything with them.
+Your custom OSC component however can directly act on receiving the messages.
 
 ## Bevy Compatibility
 
 | bevy | bevy_rosc |
 |------|-----------|
-| 0.8  | 0.3       |
+| 0.8  | 0.4       |
 | 0.7  | 0.1       |
