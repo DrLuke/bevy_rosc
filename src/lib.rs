@@ -17,8 +17,7 @@
 //!
 //! fn spawn(mut commands: Commands) {
 //!     commands
-//!         .spawn()
-//!         .insert(SingleAddressOscMethod::new("/test/address".into()).unwrap());
+//!         .spawn(SingleAddressOscMethod::new("/test/address".into()).unwrap());
 //! }
 //!
 //! fn print_received_osc_packets(mut query: Query<&mut SingleAddressOscMethod, (Changed<SingleAddressOscMethod>)>) {
@@ -70,7 +69,7 @@
 //! }
 //! 
 //! fn startup(mut commands: Commands) {
-//!     commands.spawn().insert(MyOscMethod {
+//!     commands.spawn(MyOscMethod {
 //!         osc_address: OscAddress::new("/test/address".into()).unwrap(),
 //!     });
 //! }

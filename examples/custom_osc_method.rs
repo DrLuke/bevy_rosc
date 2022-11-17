@@ -29,9 +29,7 @@ fn startup(mut commands: Commands) {
     println!("** Startup");
 
     // Spawn entity with custom OSC receiving component
-    commands
-        .spawn()
-        .insert(MyOscMethod{osc_address: OscAddress::new("/test/address".into()).unwrap()});
+    commands.spawn(MyOscMethod{osc_address: OscAddress::new("/test/address".into()).unwrap()});
 }
 
 fn main() {

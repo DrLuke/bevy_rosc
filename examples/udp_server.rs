@@ -11,15 +11,10 @@ use bevy_rosc::{OscDispatcher, OscUdpServer};
 fn startup(mut commands: Commands) {
     println!("** Startup");
 
-    commands
-        .spawn()
-        // This is the component that receives OSC messages
-        .insert(MultiAddressOscMethod::new(vec!["/test/address".into()]).unwrap());
+    commands.spawn(MultiAddressOscMethod::new(vec!["/test/address".into()]).unwrap());
 
     // Spawn UDP server that can receive OSC packets on port 31337
-    commands
-        .spawn()
-        .insert(OscUdpServer::new("0.0.0.0:31337").unwrap());
+    commands.spawn(OscUdpServer::new("0.0.0.0:31337").unwrap());
 }
 
 /// System that listens for any `MultiAddressOscMethod` that has changed and then prints out the received OscMessage

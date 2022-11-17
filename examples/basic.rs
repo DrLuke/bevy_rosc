@@ -15,10 +15,7 @@ fn startup(mut commands: Commands) {
     println!("** Startup");
 
     for i in 0..3 {
-        commands
-            .spawn()
-            // This is the component that receives OSC messages
-            .insert(MultiAddressOscMethod::new(vec![format!("/entity{}/time", i)]).unwrap());
+        commands.spawn(MultiAddressOscMethod::new(vec![format!("/entity{}/time", i)]).unwrap());
     }
 }
 

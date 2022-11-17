@@ -12,9 +12,7 @@ fn startup(mut commands: Commands) {
     println!("** Startup");
 
     // Spawn entity with OSC receiving component that has a single address
-    commands
-        .spawn()
-        .insert(SingleAddressOscMethod::new("/test/address".into()).unwrap());
+    commands.spawn(SingleAddressOscMethod::new("/test/address".into()).unwrap());
 }
 
 /// System that listens for any `SingleAddressOscMethod` that has changed and then prints out the oldest received OscMessage

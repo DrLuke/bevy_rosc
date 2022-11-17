@@ -46,9 +46,7 @@ impl<A: ToSocketAddrs + Send + Sync + 'static + Clone> Plugin for BevyRoscPlugin
         app.insert_resource(OscDispatcher::default())
             .add_event::<OscDispatchEvent>()
             .add_startup_system(move |mut commands: Commands| {
-                commands
-                    .spawn()
-                    .insert(OscUdpServer::new(addrs.clone()).unwrap());
+                commands.spawn(OscUdpServer::new(addrs.clone()).unwrap());
             })
             .add_system_to_stage(PreUpdate, osc_receive_system)
             .add_system(method_dispatcher_system::<SingleAddressOscMethod>)
