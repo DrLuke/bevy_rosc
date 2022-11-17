@@ -6,7 +6,7 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
 /// Dispatches received [`OscPacket`](rosc::OscPacket)s and sends the [`OscDispatchEvent`], which ultimately delivers messages to matching [`OscMethod`](crate::OscMethod)s.
-#[derive(Default, Component)]
+#[derive(Default, Resource)]
 pub struct OscDispatcher {
     matchers: HashMap<String, Matcher>,
 }
