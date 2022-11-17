@@ -44,7 +44,7 @@ fn send_message(
 ) {
     let new_msg = OscMessage {
         addr: "/entity*/time".to_string(),
-        args: vec![time.time_since_startup().as_secs_f32().into()],
+        args: vec![time.elapsed_seconds().into()],
     };
 
     println!("Dispatching: {:?}", new_msg);
