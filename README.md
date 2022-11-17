@@ -33,8 +33,7 @@ OSC methods are components that have one or more OSC address and can receive OSC
 ```rust
 fn spawn_entity(mut commands: Commands) {
     commands.
-        spawn()
-        .insert(
+        spawn(
             SingleAddressOscMethod::new(vec!["/some/osc/address".into()]).unwrap()
         );
 }
@@ -84,7 +83,8 @@ Your custom OSC component however can directly act on receiving the messages.
 
 ## Bevy Compatibility
 
-| bevy | bevy_rosc |
-|------|-----------|
-| 0.8  | 0.4       |
-| 0.7  | 0.1       |
+| bevy  | bevy_rosc |
+|-------|-----------|
+| 0.9   | 0.5       |
+| 0.8   | 0.4       |
+| 0.7   | 0.1       |
