@@ -8,6 +8,10 @@ use rosc::address::Matcher;
 use rosc::OscPacket;
 use rosc::{OscBundle, OscMessage, OscTime};
 
+// Resource wrapper utility to use scalar types as resources
+#[derive(Resource, Deref, DerefMut)]
+pub struct Wrapper<T>(T);
+
 fn dispatch_single(mut disp: ResMut<OscDispatcher>, event_writer: EventWriter<OscDispatchEvent>) {
     disp.dispatch(
         vec![OscPacket::Message(OscMessage {
@@ -20,10 +24,10 @@ fn dispatch_single(mut disp: ResMut<OscDispatcher>, event_writer: EventWriter<Os
 
 fn check_event_single(
     mut event_reader: EventReader<OscDispatchEvent>,
-    mut event_received: ResMut<bool>,
+    mut event_received: ResMut<Wrapper<bool>>,
 ) {
     // Check if an event was received
-    *event_received.as_mut() = event_reader.iter().next().is_some();
+    event_received.0 = event_reader.iter().next().is_some();
 }
 
 #[test]
@@ -34,7 +38,7 @@ fn dispatch_osc_message() {
     world.init_resource::<Events<OscDispatchEvent>>(); // Set up OscDispatchEvent to work
 
     // Bool used to check if event was received
-    world.insert_resource(false);
+    world.insert_resource(Wrapper(false));
 
     let mut update_stage = SystemStage::single_threaded();
     update_stage.add_system(dispatch_single.label("send"));
@@ -45,7 +49,7 @@ fn dispatch_osc_message() {
     update_stage.run(&mut world);
 
     // Resource is set to true if event was received
-    assert!(*world.resource::<bool>())
+    assert!(world.resource::<Wrapper<bool>>().0)
 }
 
 fn dispatch_bundle(mut disp: ResMut<OscDispatcher>, event_writer: EventWriter<OscDispatchEvent>) {
@@ -84,10 +88,10 @@ fn dispatch_bundle(mut disp: ResMut<OscDispatcher>, event_writer: EventWriter<Os
 fn check_event_bundle(
     mut event_reader: EventReader<OscDispatchEvent>,
 
-    mut received_msgs: ResMut<Vec<(Matcher, OscMessage)>>,
+    mut received_msgs: ResMut<Wrapper<Vec<(Matcher, OscMessage)>>>,
 ) {
     // Get all messages included in the event
-    *received_msgs.as_mut() = match event_reader.iter().next() {
+    received_msgs.0 = match event_reader.iter().next() {
         Some(e) => e.messages.clone(),
         None => vec![],
     };
@@ -101,7 +105,7 @@ fn dispatch_osc_bundle() {
     world.init_resource::<Events<OscDispatchEvent>>(); // Set up OscDispatchEvent to work
 
     // Messages that were included in the event
-    let msgs: Vec<(Matcher, OscMessage)> = vec![];
+    let msgs: Wrapper<Vec<(Matcher, OscMessage)>> = Wrapper(vec![]);
     world.insert_resource(msgs);
 
     let mut update_stage = SystemStage::single_threaded();
@@ -113,8 +117,8 @@ fn dispatch_osc_bundle() {
     update_stage.run(&mut world);
 
     // Resource is set to true if event was received
-    let received_msgs = world.resource::<Vec<(Matcher, OscMessage)>>();
-    assert_eq!(3, received_msgs.len());
+    let received_msgs = world.resource::<Wrapper<Vec<(Matcher, OscMessage)>>>();
+    assert_eq!(3, received_msgs.0.len());
     assert_eq!("/entity1/value", received_msgs[0].1.addr);
     assert_eq!("/entity2/value", received_msgs[1].1.addr);
     assert_eq!("/entity3/value", received_msgs[2].1.addr);
