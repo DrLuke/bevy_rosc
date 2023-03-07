@@ -34,22 +34,18 @@ fn check_event_single(
 /// Minimal test of dispatcher. Just generates a single OSC message and see if it generates an
 /// `OscDispatchEvent`.
 fn dispatch_osc_message() {
-    let mut world = World::default();
-    world.init_resource::<Events<OscDispatchEvent>>(); // Set up OscDispatchEvent to work
+    let mut app = App::new();
+    app.add_event::<OscDispatchEvent>();
+    app.insert_resource(Wrapper(false));
+    app.add_system(dispatch_single);
+    app.add_system(check_event_single.after(dispatch_single));
 
-    // Bool used to check if event was received
-    world.insert_resource(Wrapper(false));
+    app.insert_resource(OscDispatcher::default());
 
-    let mut update_stage = SystemStage::single_threaded();
-    update_stage.add_system(dispatch_single.label("send"));
-    update_stage.add_system(check_event_single.after("send"));
-
-    world.insert_resource(OscDispatcher::default());
-
-    update_stage.run(&mut world);
+    app.update();
 
     // Resource is set to true if event was received
-    assert!(world.resource::<Wrapper<bool>>().0)
+    assert!(app.world.resource::<Wrapper<bool>>().0)
 }
 
 fn dispatch_bundle(mut disp: ResMut<OscDispatcher>, event_writer: EventWriter<OscDispatchEvent>) {
@@ -101,23 +97,22 @@ fn check_event_bundle(
 /// Same as above, but with an `OscBundle`, which has to be unpacked into it's constituent messages
 /// before writing the event. We have to check that all messages found their way into the event.
 fn dispatch_osc_bundle() {
-    let mut world = World::default();
-    world.init_resource::<Events<OscDispatchEvent>>(); // Set up OscDispatchEvent to work
+    let mut app = App::new();
+    app.add_event::<OscDispatchEvent>();
 
     // Messages that were included in the event
     let msgs: Wrapper<Vec<(Matcher, OscMessage)>> = Wrapper(vec![]);
-    world.insert_resource(msgs);
+    app.insert_resource(msgs);
 
-    let mut update_stage = SystemStage::single_threaded();
-    update_stage.add_system(dispatch_bundle.label("send"));
-    update_stage.add_system(check_event_bundle.after("send"));
+    app.add_system(dispatch_bundle);
+    app.add_system(check_event_bundle.after(dispatch_bundle));
 
-    world.insert_resource(OscDispatcher::default());
+    app.insert_resource(OscDispatcher::default());
 
-    update_stage.run(&mut world);
+    app.update();
 
     // Resource is set to true if event was received
-    let received_msgs = world.resource::<Wrapper<Vec<(Matcher, OscMessage)>>>();
+    let received_msgs = app.world.resource::<Wrapper<Vec<(Matcher, OscMessage)>>>();
     assert_eq!(3, received_msgs.0.len());
     assert_eq!("/entity1/value", received_msgs[0].1.addr);
     assert_eq!("/entity2/value", received_msgs[1].1.addr);

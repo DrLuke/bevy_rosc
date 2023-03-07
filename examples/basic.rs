@@ -2,8 +2,9 @@
 
 extern crate bevy_rosc;
 
+use std::time::Duration;
 use bevy::prelude::*;
-use bevy::time::FixedTimestep;
+use bevy::time::common_conditions::on_fixed_timer;
 
 use bevy_rosc::OscDispatcher;
 use bevy_rosc::OscMethod;
@@ -64,10 +65,6 @@ fn main() {
         .add_startup_system(startup)
         .add_system(print_received_osc_packets)
         // Send one OSC Message per second
-        .add_system_set(
-            SystemSet::new()
-                .with_run_criteria(FixedTimestep::step(1.0))
-                .with_system(send_message),
-        )
+        .add_system(send_message.run_if(on_fixed_timer(Duration::from_secs(1))))
         .run();
 }
