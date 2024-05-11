@@ -36,8 +36,8 @@ fn main() {
         // Minimal Bevy plugins
         .add_plugins(MinimalPlugins)
         // Add the bevy_rosc plugin and have it listen on port 31337
-        .add_plugin(BevyRoscPlugin::new("0.0.0.0:31337").unwrap())
-        .add_startup_system(startup)
-        .add_system(print_received_osc_packets)
+        .add_plugins(BevyRoscPlugin::new("0.0.0.0:31337").unwrap())
+        .add_systems(Startup, startup)
+        .add_systems(Update, print_received_osc_packets)
         .run();
 }

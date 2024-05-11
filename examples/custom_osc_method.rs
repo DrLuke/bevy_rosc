@@ -37,9 +37,9 @@ fn main() {
         // Minimal Bevy plugins
         .add_plugins(MinimalPlugins)
         // Add the bevy_rosc plugin and have it listen on port 31337
-        .add_plugin(BevyRoscPlugin::new("0.0.0.0:31337").unwrap())
+        .add_plugins(BevyRoscPlugin::new("0.0.0.0:31337").unwrap())
         // Add dispatcher system for MyOscMethod
-        .add_system(method_dispatcher_system::<MyOscMethod>)
-        .add_startup_system(startup)
+        .add_systems(Update, method_dispatcher_system::<MyOscMethod>)
+        .add_systems(Startup, startup)
         .run();
 }

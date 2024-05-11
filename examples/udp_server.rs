@@ -62,9 +62,14 @@ fn main() {
         // Event sent by the dispatcher
         .add_event::<OscDispatchEvent>()
         // System that received the dispatch event and attempts to match received messages with all `MultiAddressOscMethod` components
-        .add_system(method_dispatcher_system::<MultiAddressOscMethod>)
-        .add_startup_system(startup)
-        .add_system(print_received_osc_packets)
-        .add_system(osc_receive_system)
+        .add_systems(
+            PreUpdate,
+            (
+                osc_receive_system,
+                method_dispatcher_system::<MultiAddressOscMethod>.after(osc_receive_system),
+            ),
+        )
+        .add_systems(Startup, startup)
+        .add_systems(Update, print_received_osc_packets)
         .run();
 }
