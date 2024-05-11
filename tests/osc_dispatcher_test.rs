@@ -27,7 +27,7 @@ fn check_event_single(
     mut event_received: ResMut<Wrapper<bool>>,
 ) {
     // Check if an event was received
-    event_received.0 = event_reader.iter().next().is_some();
+    event_received.0 = event_reader.read().next().is_some();
 }
 
 #[test]
@@ -37,8 +37,8 @@ fn dispatch_osc_message() {
     let mut app = App::new();
     app.add_event::<OscDispatchEvent>();
     app.insert_resource(Wrapper(false));
-    app.add_system(dispatch_single);
-    app.add_system(check_event_single.after(dispatch_single));
+    app.add_systems(Update, dispatch_single);
+    app.add_systems(Update, check_event_single.after(dispatch_single));
 
     app.insert_resource(OscDispatcher::default());
 
@@ -87,7 +87,7 @@ fn check_event_bundle(
     mut received_msgs: ResMut<Wrapper<Vec<(Matcher, OscMessage)>>>,
 ) {
     // Get all messages included in the event
-    received_msgs.0 = match event_reader.iter().next() {
+    received_msgs.0 = match event_reader.read().next() {
         Some(e) => e.messages.clone(),
         None => vec![],
     };
@@ -104,8 +104,10 @@ fn dispatch_osc_bundle() {
     let msgs: Wrapper<Vec<(Matcher, OscMessage)>> = Wrapper(vec![]);
     app.insert_resource(msgs);
 
-    app.add_system(dispatch_bundle);
-    app.add_system(check_event_bundle.after(dispatch_bundle));
+    app.add_systems(Update, (
+        dispatch_bundle,
+        check_event_bundle.after(dispatch_bundle)
+    ));
 
     app.insert_resource(OscDispatcher::default());
 
