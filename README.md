@@ -21,7 +21,7 @@ fn main() {
         // Minimal Bevy plugins
         .add_plugins(MinimalPlugins)
         // Add the bevy_rosc plugin and have it listen on port 31337
-        .add_plugin(BevyRoscPlugin::new("0.0.0.0:31337").unwrap())
+        .add_plugins(BevyRoscPlugin::new("0.0.0.0:31337").unwrap())
         .run();
 }
 ```
@@ -85,6 +85,7 @@ Your custom OSC component however can directly act on receiving the messages.
 
 | bevy | bevy_rosc |
 |------|-----------|
+| 0.13 | 0.7       |
 | 0.10 | 0.6       |
 | 0.9  | 0.5       |
 | 0.8  | 0.4       |
