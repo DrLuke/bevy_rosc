@@ -69,6 +69,7 @@ impl OscDispatcher {
 
 /// An event containing all OSC messages that were received this frame and their corresponding
 /// [`rosc::address::Matcher`]s
+#[derive(Event)]
 pub struct OscDispatchEvent {
     pub messages: Vec<(Matcher, OscMessage)>,
 }
@@ -82,7 +83,7 @@ pub fn method_dispatcher_system<T: OscMethod + Component>(
     mut event_reader: EventReader<OscDispatchEvent>,
     mut osc_method_query: Query<&mut T>,
 ) {
-    for ev in event_reader.iter() {
+    for ev in event_reader.read() {
         for mut osc_method in osc_method_query.iter_mut() {
             for (matcher, message) in &ev.messages {
                 osc_method.match_message(matcher, message);

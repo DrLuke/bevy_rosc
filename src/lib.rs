@@ -32,9 +32,9 @@
 //! fn main() {
 //!     App::new()
 //!         .add_plugins(MinimalPlugins)
-//!         .add_plugin(BevyRoscPlugin::new("0.0.0.0:31337").unwrap())
-//!         .add_startup_system(spawn)
-//!         .add_system(print_received_osc_packets)
+//!         .add_plugins(BevyRoscPlugin::new("0.0.0.0:31337").unwrap())
+//!         .add_systems(Startup, spawn)
+//!         .add_systems(Update, print_received_osc_packets)
 //!         .run();
 //! }
 //! ```
@@ -77,9 +77,9 @@
 //! fn main() {
 //!     App::new()
 //!         .add_plugins(MinimalPlugins)
-//!         .add_plugin(BevyRoscPlugin::new("0.0.0.0:31337").unwrap())
-//!         .add_system(method_dispatcher_system::<MyOscMethod>) // <-- Add dispatcher system for your method
-//!         .add_startup_system(startup)
+//!         .add_plugins(BevyRoscPlugin::new("0.0.0.0:31337").unwrap())
+//!         .add_systems(Update, method_dispatcher_system::<MyOscMethod>) // <-- Add dispatcher system for your method
+//!         .add_systems(Startup, startup)
 //!         .run();
 //! }
 //! ```

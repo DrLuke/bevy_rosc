@@ -41,14 +41,17 @@ fn osc_receive_system(
 
 impl<A: ToSocketAddrs + Send + Sync + 'static + Clone> Plugin for BevyRoscPlugin<A> {
     fn build(&self, app: &mut App) {
-        let addrs = self.addrs.clone();
         app.insert_resource(OscDispatcher::default())
             .add_event::<OscDispatchEvent>()
-            .add_startup_system(move |mut commands: Commands| {
-                commands.spawn(OscUdpServer::new(addrs.clone()).unwrap());
-            })
-            .add_system(osc_receive_system.in_base_set(CoreSet::PreUpdate))
-            .add_system(method_dispatcher_system::<SingleAddressOscMethod>)
-            .add_system(method_dispatcher_system::<MultiAddressOscMethod>);
+            .add_systems(
+                PreUpdate,
+                (
+                    osc_receive_system,
+                    method_dispatcher_system::<SingleAddressOscMethod>.after(osc_receive_system),
+                    method_dispatcher_system::<MultiAddressOscMethod>.after(osc_receive_system),
+                ),
+            );
+        app.world
+            .spawn(OscUdpServer::new(self.addrs.clone()).unwrap());
     }
 }
