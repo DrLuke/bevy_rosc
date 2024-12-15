@@ -51,7 +51,7 @@ impl<A: ToSocketAddrs + Send + Sync + 'static + Clone> Plugin for BevyRoscPlugin
                     method_dispatcher_system::<MultiAddressOscMethod>.after(osc_receive_system),
                 ),
             );
-        app.world
+        app.world_mut()
             .spawn(OscUdpServer::new(self.addrs.clone()).unwrap());
     }
 }

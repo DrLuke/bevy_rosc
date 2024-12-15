@@ -45,7 +45,7 @@ fn dispatch_osc_message() {
     app.update();
 
     // Resource is set to true if event was received
-    assert!(app.world.resource::<Wrapper<bool>>().0)
+    assert!(app.world().resource::<Wrapper<bool>>().0)
 }
 
 fn dispatch_bundle(mut disp: ResMut<OscDispatcher>, event_writer: EventWriter<OscDispatchEvent>) {
@@ -114,7 +114,7 @@ fn dispatch_osc_bundle() {
     app.update();
 
     // Resource is set to true if event was received
-    let received_msgs = app.world.resource::<Wrapper<Vec<(Matcher, OscMessage)>>>();
+    let received_msgs = app.world_mut().resource::<Wrapper<Vec<(Matcher, OscMessage)>>>();
     assert_eq!(3, received_msgs.0.len());
     assert_eq!("/entity1/value", received_msgs[0].1.addr);
     assert_eq!("/entity2/value", received_msgs[1].1.addr);

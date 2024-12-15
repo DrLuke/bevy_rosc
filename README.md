@@ -85,6 +85,7 @@ Your custom OSC component however can directly act on receiving the messages.
 
 | bevy | bevy_rosc |
 |------|-----------|
+| 0.15 | 0.8       |
 | 0.13 | 0.7       |
 | 0.10 | 0.6       |
 | 0.9  | 0.5       |

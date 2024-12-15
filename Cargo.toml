@@ -1,6 +1,6 @@
 [package]
 name = "bevy_rosc"
-version = "0.7.0"
+version = "0.8.0"
 edition = "2021"
 description = "Send and receive OSC messages in bevy"
 repository = "https://github.com/DrLuke/bevy_rosc"
@@ -9,8 +9,8 @@ keywords = ["bevy", "osc", "rosc"]
 categories = ["network-programming"]
 
 [dependencies]
-bevy = { version = "0.13", default-features = false, features = [] }
-rosc = { version = "0.9.1" }
+bevy = { version = "0.15", default-features = false, features = [] }
+rosc = { version = "0.10.1" }
 
 [dev-dependencies]
-bevy = { version = "0.13.2", features = [] }
+bevy = { version = "0.15", features = [] }
