@@ -9,8 +9,5 @@ keywords = ["bevy", "osc", "rosc"]
 categories = ["network-programming"]
 
 [dependencies]
-bevy = { version = "0.15", default-features = false, features = [] }
-rosc = { version = "0.10.1" }
-
-[dev-dependencies]
-bevy = { version = "0.15", features = [] }
+bevy = { version = "0.16", default-features = false, features = [] }
+rosc = { version = "0.11.4" }
