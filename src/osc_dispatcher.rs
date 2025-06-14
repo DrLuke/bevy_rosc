@@ -29,7 +29,7 @@ impl OscDispatcher {
                 OscPacket::Bundle(bundle) => OscDispatcher::unpack_bundle(bundle),
             })
             .collect();
-        self.dispatch_messages(osc_messages, event_writer);
+        let _ = self.dispatch_messages(osc_messages, event_writer);
     }
 
     fn dispatch_messages(
