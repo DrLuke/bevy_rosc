@@ -1,4 +1,5 @@
 use crate::OscMethod;
+use bevy::ecs::component::Mutable;
 use bevy::prelude::*;
 use rosc::address::Matcher;
 use rosc::{OscBundle, OscError, OscMessage, OscPacket};
@@ -28,7 +29,7 @@ impl OscDispatcher {
                 OscPacket::Bundle(bundle) => OscDispatcher::unpack_bundle(bundle),
             })
             .collect();
-        self.dispatch_messages(osc_messages, event_writer);
+        let _ = self.dispatch_messages(osc_messages, event_writer);
     }
 
     fn dispatch_messages(
@@ -47,7 +48,7 @@ impl OscDispatcher {
             messages.push((matcher, osc_message.clone()))
         }
 
-        event_writer.send(OscDispatchEvent { messages });
+        event_writer.write(OscDispatchEvent { messages });
 
         Ok(())
     }
@@ -79,7 +80,7 @@ pub struct OscDispatchEvent {
 ///
 /// This system must be added for each [`OscMethod`](crate::OscMethod) you intend to use, otherwise
 /// messages won't be dispatched to it.
-pub fn method_dispatcher_system<T: OscMethod + Component>(
+pub fn method_dispatcher_system<T: OscMethod + Component<Mutability = Mutable>>(
     mut event_reader: EventReader<OscDispatchEvent>,
     mut osc_method_query: Query<&mut T>,
 ) {
